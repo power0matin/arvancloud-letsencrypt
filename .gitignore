@@ -1,0 +1,12 @@
+.DS_Store
+*.swp
+*.swo
+.env
+.env.*
+*.log
+*.key
+*.pem
+*.cer
+*.crt
+*.csr
+secrets/
