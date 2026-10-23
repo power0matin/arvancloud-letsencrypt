@@ -16,6 +16,9 @@ on:
         options:
           - "NO"
           - "PUBLISH"
+  push:
+    branches:
+      - release/v1.1.0
 
 permissions:
   contents: write
@@ -26,7 +29,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Publish release
+    name: Validate and publish release
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -34,10 +37,60 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate request and repository visibility
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes shellcheck
+
+      - name: Check shell syntax and CLI entrypoints
+        run: |
+          set -Eeuo pipefail
+          bash -n install.sh
+          bash -n menu.sh
+          bash -n core.sh
+          sh -n src/dns_arvan.sh
+          bash install.sh --help >/dev/null
+          bash core.sh --help >/dev/null
+          shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
+
+      - name: Verify embedded DNS plugin and scan release files
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          core = Path("core.sh").read_text()
+          source = Path("src/dns_arvan.sh").read_text()
+          marker = '  install -m 700 /dev/stdin "$DNSAPI_PATH" <<\\'PLUGIN\\'\\n'
+          if core.count(marker) != 1:
+              raise SystemExit("Expected exactly one embedded DNS plugin block.")
+          embedded = core.split(marker, 1)[1].split("\\nPLUGIN\\n", 1)[0]
+          if embedded.strip() != source.strip():
+              raise SystemExit("Embedded DNS plugin differs from src/dns_arvan.sh.")
+
+          forbidden = [
+              "hyper" + "sentry" + ".top",
+              "matin" + "shahabadi" + ".ir",
+              "arvan" + "-domains.json",
+          ]
+          ignored_parts = {".git"}
+          for path in Path(".").rglob("*"):
+              if not path.is_file() or any(part in ignored_parts for part in path.parts):
+                  continue
+              try:
+                  body = path.read_text(errors="ignore")
+              except OSError:
+                  continue
+              for needle in forbidden:
+                  if needle in body:
+                      raise SystemExit(f"Public release file contains a private identifier: {path}")
+          print("Embedded plugin and public-file scan passed.")
+          PY
+
+      - name: Validate request, changelog, and repository visibility
         env:
-          RELEASE_TAG: ${{ inputs.tag }}
-          CONFIRMATION: ${{ inputs.confirmation }}
+          RELEASE_TAG: ${{ inputs.tag || 'v1.1.0' }}
+          CONFIRMATION: ${{ inputs.confirmation || 'PUBLISH' }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
@@ -64,7 +117,7 @@ jobs:
               found = 1
               next
             }
-            found && /^## \[/ { exit }
+            found && /^## \\[/ { exit }
             found { print }
           ' CHANGELOG.md)"
 
@@ -82,16 +135,22 @@ jobs:
             exit 1
           fi
 
-          printf '%s\n' "$notes" > "$RUNNER_TEMP/release-notes.md"
+          printf '%s\\n' "$notes" > "$RUNNER_TEMP/release-notes.md"
           echo "Release validation passed for $RELEASE_TAG."
+
+      - name: Generate SHA-256 manifest
+        run: |
+          set -Eeuo pipefail
+          sha256sum install.sh menu.sh core.sh src/dns_arvan.sh > "$RUNNER_TEMP/SHA256SUMS"
 
       - name: Create public release
         env:
-          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_TAG: ${{ inputs.tag || 'v1.1.0' }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
-          gh release create "$RELEASE_TAG" \
-            --target "$GITHUB_SHA" \
-            --title "ArvanCloud Let's Encrypt $RELEASE_TAG" \
-            --notes-file "$RUNNER_TEMP/release-notes.md"
+          gh release create "$RELEASE_TAG" \\
+            --target "$GITHUB_SHA" \\
+            --title "ArvanCloud Let's Encrypt $RELEASE_TAG" \\
+            --notes-file "$RUNNER_TEMP/release-notes.md" \\
+            "$RUNNER_TEMP/SHA256SUMS"
