@@ -1,0 +1,97 @@
+name: Publish GitHub Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (for example v1.1.0)"
+        required: true
+        default: "v1.1.0"
+        type: string
+      confirmation:
+        description: "Type PUBLISH to confirm creating a public release"
+        required: true
+        default: "NO"
+        type: choice
+        options:
+          - "NO"
+          - "PUBLISH"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate request and repository visibility
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+
+          [[ "$CONFIRMATION" == "PUBLISH" ]] || {
+            echo "Release cancelled: confirmation was not PUBLISH." >&2
+            exit 1
+          }
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
+            echo "Invalid release tag: $RELEASE_TAG" >&2
+            exit 1
+          }
+
+          visibility="$(gh api "repos/$GITHUB_REPOSITORY" --jq '.visibility')"
+          [[ "$visibility" == "public" ]] || {
+            echo "Repository must be public before a public release can be created." >&2
+            exit 1
+          }
+
+          version="${RELEASE_TAG#v}"
+          header="## [${version}]"
+          notes="$(awk -v header="$header" '
+            index($0, header) == 1 && substr($0, length(header) + 1, 3) == " - " {
+              found = 1
+              next
+            }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md)"
+
+          [[ -n "${notes//[[:space:]]/}" ]] || {
+            echo "No matching version section found in CHANGELOG.md for $RELEASE_TAG." >&2
+            exit 1
+          }
+
+          if git ls-remote --exit-code --tags origin "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Tag already exists: $RELEASE_TAG" >&2
+            exit 1
+          fi
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release already exists: $RELEASE_TAG" >&2
+            exit 1
+          fi
+
+          printf '%s\n' "$notes" > "$RUNNER_TEMP/release-notes.md"
+          echo "Release validation passed for $RELEASE_TAG."
+
+      - name: Create public release
+        env:
+          RELEASE_TAG: ${{ inputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh release create "$RELEASE_TAG" \
+            --target "$GITHUB_SHA" \
+            --title "ArvanCloud Let's Encrypt $RELEASE_TAG" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
