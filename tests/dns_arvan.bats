@@ -6,6 +6,10 @@ setup() {
 
   export MOCK_LOG="${BATS_TEST_TMPDIR}/mock-api.log"
   : > "$MOCK_LOG"
+  HTTP_HEADER="${BATS_TEST_TMPDIR}/http-header"
+  : > "$HTTP_HEADER"
+  MOCK_GET_HTTP_CODE=200
+  MOCK_FIRST_GET_HTTP_CODE=""
 
   Arvan_Token="mock-api-key"
   STORED_TOKEN=""
@@ -38,10 +42,17 @@ setup() {
     esac
   }
   _math() { printf '%s\n' "$(( $1 $2 $3 ))"; }
+  _sleep() { printf 'SLEEP\t%s\n' "$1" >> "$MOCK_LOG"; }
 
   _get() {
-    local url="$1" body
+    local url="$1" body request_count http_code
     printf 'GET\t%s\n' "$url" >> "$MOCK_LOG"
+    request_count="$(awk -F '\t' '$1 == "GET" { count++ } END { print count + 0 }' "$MOCK_LOG")"
+    http_code="$MOCK_GET_HTTP_CODE"
+    if [ "$request_count" -eq 1 ] && [ -n "$MOCK_FIRST_GET_HTTP_CODE" ]; then
+      http_code="$MOCK_FIRST_GET_HTTP_CODE"
+    fi
+    printf 'HTTP/2 %s Mock\r\n' "$http_code" > "$HTTP_HEADER"
     case "$url" in
       *"/dns-records?page=1&per_page=100"*) body="$MOCK_RECORD_PAGE1" ;;
       *"/dns-records?page=2&per_page=100"*) body="$MOCK_RECORD_PAGE2" ;;
@@ -88,6 +99,10 @@ capture_status() {
 
 post_count() {
   awk -F '\t' '$1 == "POST" { count++ } END { print count + 0 }' "$MOCK_LOG"
+}
+
+sleep_count() {
+  awk -F '\t' '$1 == "SLEEP" { count++ } END { print count + 0 }' "$MOCK_LOG"
 }
 
 @test "add saves the DNS token and creates a TXT challenge for the resolved zone" {
@@ -165,12 +180,48 @@ post_count() {
   [ "$(post_count)" -eq 1 ]
 }
 
-@test "a failed API request is not reported as successful TXT creation" {
+@test "a transient 503 response is retried and a later successful GET proceeds" {
+  MOCK_FIRST_GET_HTTP_CODE=503
+
+  capture_status dns_arvan_add "_acme-challenge.example.com" "challenge-value"
+
+  [ "$COMMAND_STATUS" -eq 0 ]
+  [ "$(grep -Fc '/domains/?page=1&per_page=100' "$MOCK_LOG")" -eq 2 ]
+  [ "$(sleep_count)" -eq 1 ]
+  [ "$(post_count)" -eq 1 ]
+}
+
+@test "persistent 503 responses stop after three attempts" {
+  MOCK_GET_HTTP_CODE=503
+
+  capture_status dns_arvan_add "_acme-challenge.example.com" "challenge-value"
+
+  [ "$COMMAND_STATUS" -eq 1 ]
+  [ "$(grep -Fc '/domains/?page=1&per_page=100' "$MOCK_LOG")" -eq 3 ]
+  [ "$(sleep_count)" -eq 2 ]
+  [ "$(post_count)" -eq 0 ]
+}
+
+@test "authorization failures are not retried" {
+  MOCK_GET_HTTP_CODE=401
+  MOCK_DOMAIN_PAGE1='{"message":"unauthorized"}'
+
+  capture_status dns_arvan_add "_acme-challenge.example.com" "challenge-value"
+
+  [ "$COMMAND_STATUS" -eq 1 ]
+  [ "$(grep -Fc '/domains/?page=1&per_page=100' "$MOCK_LOG")" -eq 1 ]
+  [ "$(sleep_count)" -eq 0 ]
+  [ "$(post_count)" -eq 0 ]
+}
+
+@test "a failed transport request is retried a bounded number of times" {
   MOCK_GET_RC=7
 
   capture_status dns_arvan_add "_acme-challenge.example.com" "challenge-value"
 
   [ "$COMMAND_STATUS" -eq 1 ]
+  [ "$(grep -Fc '/domains/?page=1&per_page=100' "$MOCK_LOG")" -eq 3 ]
+  [ "$(sleep_count)" -eq 2 ]
   [ "$(post_count)" -eq 0 ]
 }
 
