@@ -6,6 +6,7 @@
 - Retry ArvanCloud API-key verification in place after HTTP 401/403 or when the selected DNS zone is not visible, without asking the user to re-enter the domain and certificate options.
 - Read the initial and replacement API keys through a hidden prompt attached directly to the terminal.
 - Pin the installer and menu to the versioned `v1.1.1` release.
+- Documented the menu redraw and API-key retry behavior in both README guides.
 
 ## [1.1.0] - 2026-10-23
 
