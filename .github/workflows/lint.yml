@@ -24,94 +24,12 @@ jobs:
           versions = {}
           for name in paths:
               content = Path(name).read_text()
-              match = re.search(r'^readonly SCRIPT_VERSION="([0-9]+\\.[0-9]+\\.[0-9]+)"        run: |
-          set -Eeuo pipefail
-          ruby -e 'require "yaml"; YAML.load_file(".github/workflows/release.yml")'
-          python3 - <<'PY'
-          from pathlib import Path
-          import re
-
-          workflow = Path(".github/workflows/release.yml").read_text()
-          lines = workflow.splitlines()
-          assert not re.search(r"(?m)^  push:$", workflow), "Release publishing must not run on branch pushes."
-          assert 'default: "v1.1.4"' in workflow, "Release input default should track the next candidate."
-          assert '[[ "$GITHUB_REF" == "refs/heads/main" ]]' in workflow
-          assert '[[ "$CONFIRMATION" == "PUBLISH" ]]' in workflow
-          validate_index = lines.index("  validate:")
-          publish_index = lines.index("  publish:")
-          assert "      contents: read" in lines[validate_index:publish_index]
-          assert "      contents: write" in lines[publish_index:]
-          actions = re.findall(r"^\s+uses:\s+([^\s]+)", workflow, flags=re.MULTILINE)
-          assert actions, "Expected at least one external action."
-          assert all(re.fullmatch(r"[^@]+@[0-9a-f]{40}", action) for action in actions), actions
-          assert "check_release_absent" in workflow, "Publisher must fail closed when the release/tag state cannot be verified."
-          print("Release workflow syntax and safety invariants passed.")
-          PY
-      - name: Check shell syntax
-        run: |
-          bash -n install.sh
-          bash -n menu.sh
-          bash -n core.sh
-          sh -n src/dns_arvan.sh
-      - name: Smoke test CLI help
-        run: |
-          bash install.sh --help >/dev/null
-          bash core.sh --help >/dev/null
-      - name: Verify embedded ArvanCloud DNS plugin
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          core = Path("core.sh").read_text()
-          source = Path("src/dns_arvan.sh").read_text()
-          marker = '  install -m 700 /dev/stdin "$DNSAPI_PATH" <<' + chr(39) + 'PLUGIN' + chr(39) + chr(10)
-          if core.count(marker) != 1:
-              raise SystemExit("Expected exactly one embedded DNS plugin block.")
-          embedded = core.split(marker, 1)[1].split("\nPLUGIN\n", 1)[0]
-          if embedded.strip() != source.strip():
-              raise SystemExit("Embedded DNS plugin differs from src/dns_arvan.sh.")
-          print("Embedded DNS plugin parity passed.")
-          PY
-      - name: Check default certificate output path
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-
-          core = Path("core.sh").read_text()
-          menu = Path("menu.sh").read_text()
-          entry = Path("install.sh").read_text()
-          assert 'INSTALL_DIR="${INSTALL_DIR:-/root/cert/${DOMAIN}}"' in core
-          assert 'Certificate files are available at:' in core
-          assert 'Certificate output directory [/root/cert/${domain}]' in menu
-          assert '"/root/cert/${DOMAIN}/fullchain.pem" "/etc/ssl/acme/${DOMAIN}/fullchain.pem"' in entry
-          print("Default certificate path and user-facing path output checks passed.")
-          PY
-      - name: Install test and shell tooling
-        env:
-          ACTIONLINT_VERSION: "1.7.12"
-          ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
-        run: |
-          set -Eeuo pipefail
-          sudo apt-get update
-          sudo apt-get install --yes bats jq shellcheck
-          archive="$RUNNER_TEMP/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
-          curl -fsSLo "$archive" "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
-          printf '%s  %s\n' "$ACTIONLINT_SHA256" "$archive" | sha256sum --check --status
-          tar -xzf "$archive" -C "$RUNNER_TEMP" actionlint
-          "$RUNNER_TEMP/actionlint" -version
-      - name: Lint GitHub Actions workflows
-        run: |
-          "$RUNNER_TEMP/actionlint" -color
-      - name: Run DNS plugin behavioral tests
-        run: bats tests/dns_arvan.bats
-      - name: Run ShellCheck
-        run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
-, content, re.MULTILINE)
+              match = re.search(r'^readonly SCRIPT_VERSION="([0-9]+\\.[0-9]+\\.[0-9]+)"$', content, re.MULTILINE)
               if not match:
                   raise SystemExit(f"{name} must declare SCRIPT_VERSION.")
               versions[name] = match.group(1)
               if 'readonly RELEASE_TAG="v${SCRIPT_VERSION}"' not in content:
-                  raise SystemExit(f"{name} must resolve components through its version tag.")
+                  raise SystemExit(f"{name} must resolve components through its immutable version tag.")
           if len(set(versions.values())) != 1:
               raise SystemExit(f"Installer/menu/core versions differ: {versions}")
           for name in ["install.sh", "menu.sh"]:
