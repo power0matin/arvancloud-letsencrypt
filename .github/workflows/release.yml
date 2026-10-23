@@ -16,9 +16,6 @@ on:
         options:
           - "NO"
           - "PUBLISH"
-  push:
-    branches:
-      - release/v1.1.1
 
 permissions:
   contents: write
