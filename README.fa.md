@@ -35,7 +35,7 @@
 <pre dir="ltr" align="left"><code>curl -fsSLo install.sh https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/latest/install.sh
 less install.sh
 bash install.sh</code></pre>
-<p dir="rtl" align="right">شاخهٔ <code dir="ltr">latest</code> کانال متحرک نصب است. برای نصب نسخهٔ ثابت، به‌جای آن از تگ انتشار استفاده کنید؛ مثلاً <code dir="ltr">v1.1.3</code>.</p>
+<p dir="rtl" align="right">شاخهٔ <code dir="ltr">latest</code> کانال متحرک شروع نصب است. نسخهٔ داخل اسکریپت، فایل‌های همراه را از همان تگ انتشار ثابت دریافت می‌کند و پیش از اجرای کد دانلودشده، checksum را با فایل <code dir="ltr">SHA256SUMS</code> همان انتشار بررسی می‌کند. برای شروع کاملاً ثابت، در نشانی دانلود به‌جای <code dir="ltr">latest</code> از تگ نسخه، مانند <code dir="ltr">v1.1.3</code> استفاده کنید.</p>
 
 <h2 dir="rtl" align="right">پیش‌نیازها</h2>
 <ul dir="rtl" align="right">
@@ -135,7 +135,7 @@ bash -n core.sh
 sh -n src/dns_arvan.sh
 shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
 bats tests/dns_arvan.bats</code></pre>
-<p dir="rtl" align="right">نسخه‌های منتشرشده در صفحهٔ <a href="https://github.com/power0matin/arvancloud-letsencrypt/releases">Releases</a> قرار دارند. عنوان Release فقط شمارهٔ نسخه است؛ نام پروژه و توضیحات تغییرات در بدنهٔ Release می‌آیند. مجوز پروژه <span dir="ltr">GPL-3.0-or-later</span> است؛ متن کامل در <a href="./LICENSE">LICENSE</a> قرار دارد. منشأ افزونهٔ DNS نیز در <a href="./THIRD_PARTY_NOTICES.md">اعلان‌های اجزای ثالث</a> توضیح داده شده است.</p>
+<p dir="rtl" align="right">نسخه‌های منتشرشده در صفحهٔ <a href="https://github.com/power0matin/arvancloud-letsencrypt/releases">Releases</a> قرار دارند. عنوان Release فقط شمارهٔ نسخه است؛ نام پروژه و توضیحات تغییرات در بدنهٔ Release می‌آیند. نصب‌کننده فایل‌های همراه را از یک تگ نسخهٔ ثابت می‌گیرد و checksum آن‌ها را با <code dir="ltr">SHA256SUMS</code> همان انتشار بررسی می‌کند. این بررسی خرابی یا ناهماهنگی فایل‌ها را تشخیص می‌دهد، اما امضای رمزنگاری‌شدهٔ ناشر نیست. مجوز پروژه <span dir="ltr">GPL-3.0-or-later</span> است؛ متن کامل در <a href="./LICENSE">LICENSE</a> قرار دارد. منشأ افزونهٔ DNS نیز در <a href="./THIRD_PARTY_NOTICES.md">اعلان‌های اجزای ثالث</a> توضیح داده شده است.</p>
 
 <h2 dir="rtl" align="right">تماس و پشتیبانی</h2>
 <ul dir="rtl" align="right">
