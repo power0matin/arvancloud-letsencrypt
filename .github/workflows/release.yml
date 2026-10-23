@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag (for example v1.1.1)"
+        description: "Release tag (for example v1.1.2)"
         required: true
-        default: "v1.1.1"
+        default: "v1.1.2"
         type: string
       confirmation:
         description: "Type PUBLISH to confirm creating a public release"
@@ -85,7 +85,7 @@ jobs:
 
       - name: Validate request, changelog, and repository visibility
         env:
-          RELEASE_TAG: ${{ inputs.tag || 'v1.1.1' }}
+          RELEASE_TAG: ${{ inputs.tag || 'v1.1.2' }}
           CONFIRMATION: ${{ inputs.confirmation || 'PUBLISH' }}
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -131,7 +131,10 @@ jobs:
             exit 1
           fi
 
-          printf '%s\n' "$notes" > "$RUNNER_TEMP/release-notes.md"
+          {
+            printf '%s\n\n' "ArvanCloud Let's Encrypt"
+            printf '%s\n' "$notes"
+          } > "$RUNNER_TEMP/release-notes.md"
           echo "Release validation passed for $RELEASE_TAG."
 
       - name: Generate SHA-256 manifest
@@ -141,13 +144,13 @@ jobs:
 
       - name: Create public release
         env:
-          RELEASE_TAG: ${{ inputs.tag || 'v1.1.1' }}
+          RELEASE_TAG: ${{ inputs.tag || 'v1.1.2' }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
           gh release create "$RELEASE_TAG" \
             --target "$GITHUB_SHA" \
-            --title "ArvanCloud Let's Encrypt $RELEASE_TAG" \
+            --title "$RELEASE_TAG" \
             --notes-file "$RUNNER_TEMP/release-notes.md" \
             "$RUNNER_TEMP/SHA256SUMS"
 

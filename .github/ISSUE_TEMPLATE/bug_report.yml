@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a reproducible installation, DNS validation, certificate, or renewal problem.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include API keys, private keys, full account/zone inventories, or unredacted debug logs.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety checks
+      options:
+        - label: I removed API keys, private keys, and other sensitive information from this report.
+          required: true
+        - label: I checked the README troubleshooting section.
+          required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the actual result and the expected result.
+      placeholder: What did you run, and what happened?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Installation
+        - ArvanCloud API / IAM permissions
+        - DNS-01 validation
+        - Certificate installation
+        - Automatic renewal
+        - Interactive menu
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS and version
+      placeholder: Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: project-version
+    attributes:
+      label: Project version
+      placeholder: v1.1.1
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run ...
+        2. Choose ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Redacted error or logs
+      description: Include only the relevant lines after removing sensitive values.

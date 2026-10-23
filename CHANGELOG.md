@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+- Expand the Persian README into complete project documentation with installation, CLI, renewal, security, and troubleshooting guidance.
+- Add automated CI validation that the embedded ArvanCloud DNS plugin matches its source file.
+- Add structured issue and pull-request templates to improve public bug reports while discouraging secret disclosure.
+- Standardize future release titles to the version only, with the project name in the release description.
+
+
 ## [1.1.1] - 2026-10-23
 
 - Clear the terminal before displaying the interactive menu and after returning from an action.

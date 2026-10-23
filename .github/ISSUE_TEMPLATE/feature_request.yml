@@ -1,0 +1,24 @@
+name: Feature request
+description: Suggest a focused improvement to installation, DNS validation, certificates, or renewal.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What task is difficult or missing today?
+      placeholder: Describe the use case.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior you would expect.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional approaches or workarounds you have considered.

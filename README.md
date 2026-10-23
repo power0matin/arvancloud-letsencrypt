@@ -7,6 +7,7 @@
   <a href="https://github.com/power0matin/arvancloud-letsencrypt/forks"><img src="https://img.shields.io/github/forks/power0matin/arvancloud-letsencrypt?style=flat-square&amp;label=Forks&amp;labelColor=18181B&amp;color=6366F1&amp;logo=github&amp;logoColor=white" alt="GitHub Forks"/></a>
   <a href="https://github.com/power0matin/arvancloud-letsencrypt/issues"><img src="https://img.shields.io/github/issues/power0matin/arvancloud-letsencrypt?style=flat-square&amp;label=Issues&amp;labelColor=18181B&amp;color=22C55E&amp;logo=github&amp;logoColor=white" alt="GitHub Issues"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/power0matin/arvancloud-letsencrypt?style=flat-square&amp;label=License&amp;labelColor=18181B&amp;color=EF4444&amp;logo=github&amp;logoColor=white" alt="GitHub License"/></a>
+  <a href="https://github.com/power0matin/arvancloud-letsencrypt/releases"><img src="https://img.shields.io/github/v/release/power0matin/arvancloud-letsencrypt?style=flat-square&amp;label=Latest%20release&amp;labelColor=18181B&amp;color=0EA5E9" alt="Latest stable release"/></a>
   <a href="https://github.com/power0matin/arvancloud-letsencrypt/actions/workflows/lint.yml"><img src="https://github.com/power0matin/arvancloud-letsencrypt/actions/workflows/lint.yml/badge.svg?branch=main" alt="Shell checks"/></a>
 </p>
 <!-- repo-badges:end -->
@@ -14,6 +15,10 @@
 <p align="center">Issue and renew Let's Encrypt wildcard certificates using ArvanCloud DNS-01 validation.</p>
 
 <p align="center"><a href="./README.fa.md">راهنمای فارسی (HTML، راست‌چین)</a></p>
+
+<p align="center">
+  <a href="#features">Features</a> · <a href="#quick-start">Quick start</a> · <a href="#interactive-menu">Menu</a> · <a href="#non-interactive-usage">CLI</a> · <a href="#troubleshooting">Troubleshooting</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE">License</a>
+</p>
 
 ## Features
 
@@ -48,10 +53,11 @@ Review any remote installer before running it with root privileges. The `latest`
 
 ## Release
 
-The one-line installer and menu load their matching components from the `latest` branch. The release workflow updates this branch only after all release checks pass and a release is created.
+The installer and menu load matching components from the moving `latest` branch. The release workflow advances that branch after publishing a release; use a version tag instead of `latest` when you need reproducible, version-pinned installation.
 
-After confirming that the repository is public and the release candidate has passed CI, run the **Publish GitHub Release** workflow from the Actions tab. Set the tag to `v1.1.1` and select `PUBLISH` in the confirmation field. The workflow refuses to create a release while repository visibility is private, when the tag already exists, or when the changelog has no matching version section.
+To publish the next version, update `core.sh` and `CHANGELOG.md`, let CI pass, then open **Actions → Publish GitHub Release**. Enter the new semantic version tag (for example, `v1.1.2`) and choose `PUBLISH` in the confirmation field.
 
+Release titles contain **only the version** (for example, `v1.1.2`). The project name and changelog notes belong in the release description. The workflow refuses to publish if the repository is not public, the tag or release already exists, or the matching changelog section is missing.
 ## Interactive menu
 
 The menu offers:
@@ -135,7 +141,7 @@ sudo bash install.sh --check
 sudo bash install.sh --help
 ```
 
-``--renew`` runs the normal acme.sh renewal check; it does not force every certificate to renew. Use ``--force`` only for an intentional new certificate order. ``--debug`` can produce detailed logs, so review those logs before sharing them.
+`--renew` runs the normal acme.sh renewal check; it does not force every certificate to renew. Use `--force` only for an intentional new certificate order. `--debug` can produce detailed logs, so review those logs before sharing them.
 
 ## Certificate output
 

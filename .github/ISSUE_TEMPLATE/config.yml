@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation and troubleshooting
+    url: https://github.com/power0matin/arvancloud-letsencrypt#troubleshooting
+    about: Check common DNS, installation, certificate, and renewal issues first.
+  - name: Security policy
+    url: https://github.com/power0matin/arvancloud-letsencrypt/blob/main/SECURITY.md
+    about: Report vulnerabilities privately; never post credentials or private keys in a public issue.
