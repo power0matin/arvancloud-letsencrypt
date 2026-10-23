@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-readonly SCRIPT_VERSION="1.1.0"
+readonly SCRIPT_VERSION="1.1.1"
 readonly ACME_HOME="/root/.acme.sh"
 readonly ACME_BIN="${ACME_HOME}/acme.sh"
 readonly DNSAPI_PATH="${ACME_HOME}/dnsapi/dns_arvan.sh"
@@ -315,18 +315,18 @@ PLUGIN
 
 get_access_key() {
   if [[ -z "${ARVAN_ACCESS_KEY:-}" ]]; then
-    if [[ -r /dev/tty ]]; then
-      read -r -s -p "Arvan access key: " ARVAN_ACCESS_KEY < /dev/tty
+    if [[ -r /dev/tty && -w /dev/tty ]]; then
+      printf 'Arvan access key: ' > /dev/tty
+      IFS= read -r -s ARVAN_ACCESS_KEY < /dev/tty || die "Could not read the ArvanCloud key from the terminal."
+      printf '\n' > /dev/tty
     else
       die "No interactive terminal is available. Set ARVAN_ACCESS_KEY securely."
     fi
-    printf '\n'
   fi
   [[ -n "${ARVAN_ACCESS_KEY:-}" ]] || die "Arvan access key is required."
   [[ "$ARVAN_ACCESS_KEY" != *$'\n'* && "$ARVAN_ACCESS_KEY" != *$'\r'* ]] || die "Arvan access key must be a single line."
   export ARVAN_ACCESS_KEY
 }
-
 arvan_auth_header() {
   case "$ARVAN_ACCESS_KEY" in
     Apikey\ *|APIKEY\ *|apikey\ *) printf '%s' "$ARVAN_ACCESS_KEY" ;;
@@ -348,7 +348,8 @@ verify_arvan_access() {
     if ! result="$(curl --config "$auth_file" --connect-timeout 10 --max-time 30 -sS -w $'\n%{http_code}' \
       "${ARVAN_API_URL}/?page=${page}&per_page=100")"; then
       rm -f "$auth_file"
-      die "Could not connect to the ArvanCloud API."
+      log "Could not connect to the ArvanCloud API."
+      return 20
     fi
     status="${result##*$'\n'}"
     body="${result%$'\n'*}"
@@ -356,11 +357,15 @@ verify_arvan_access() {
       rm -f "$auth_file"
       log "ArvanCloud API check failed (HTTP ${status})."
       printf '%s\n' "$body" | jq -c '{message: .message}' 2>/dev/null || true
-      die "Check the access key and its DNS-zone permissions."
+      if [[ "$status" == "401" || "$status" == "403" ]]; then
+        return 10
+      fi
+      return 20
     fi
     if ! printf '%s' "$body" | jq -e '.data | type == "array"' >/dev/null 2>&1; then
       rm -f "$auth_file"
-      die "ArvanCloud returned an unexpected domains response."
+      log "ArvanCloud returned an unexpected domains response."
+      return 20
     fi
     domain_found="$(printf '%s' "$body" | jq -r --arg target "$DOMAIN" 'any(.data[]?; .domain == $target)')"
     if [[ "$domain_found" == "true" ]]; then
@@ -375,7 +380,7 @@ verify_arvan_access() {
   done
   rm -f "$auth_file"
   log "The ArvanCloud key can reach the API but cannot see the requested DNS zone."
-  die "Grant the key access to ${DOMAIN}. The full zone list is intentionally not written to disk or logs."
+  return 11
 }
 install_cron_if_missing() {
   if ! crontab -l 2>/dev/null | grep -Eq 'acme\.sh.*--cron'; then
@@ -438,7 +443,63 @@ install_acme
 install_dns_plugin
 install_cron_if_missing
 get_access_key
-verify_arvan_access
+while true; do
+  if verify_arvan_access; then
+    break
+  else
+    verify_status=$?
+  fi
+
+  case "$verify_status" in
+    10)
+      printf '\nERROR: ArvanCloud rejected the key or denied API access.\n'
+      ;;
+    11)
+      printf '\nERROR: The key can reach ArvanCloud, but it cannot see the requested DNS zone.\n'
+      ;;
+    *)
+      die "Could not verify ArvanCloud access (check the API/network and ${LOG_DIR}/install.log)."
+      ;;
+  esac
+
+  printf 'Check the key and its IAM permissions for the requested DNS zone.\n'
+  printf 'Paste a corrected key below. You do not need to re-enter the domain or other options.\n'
+  replacement_key=""
+  printf 'Arvan access key (hidden, Enter to cancel): ' > /dev/tty
+  IFS= read -r -s replacement_key < /dev/tty || die "Could not read the replacement key."
+  printf '\n' > /dev/tty
+  [[ -n "$replacement_key" ]] || die "Access verification cancelled. Fix the key or its IAM policy, then run the certificate step again."
+  [[ "$replacement_key" != *
+  log "Starting the certificate job in the background"
+  trap '' HUP
+  run_worker < /dev/null &
+  worker_pid="$!"
+  disown "$worker_pid" 2>/dev/null || true
+  log "Started PID $worker_pid"
+  log "Follow progress with: tail -f ${LOG_DIR}/acme-issue.log"
+else
+  run_worker
+fi
+
+log "Repository script version $SCRIPT_VERSION finished setup"
+\n'* && "$replacement_key" != *
+  log "Starting the certificate job in the background"
+  trap '' HUP
+  run_worker < /dev/null &
+  worker_pid="$!"
+  disown "$worker_pid" 2>/dev/null || true
+  log "Started PID $worker_pid"
+  log "Follow progress with: tail -f ${LOG_DIR}/acme-issue.log"
+else
+  run_worker
+fi
+
+log "Repository script version $SCRIPT_VERSION finished setup"
+\r'* ]] || die "Arvan access key must be a single line."
+  ARVAN_ACCESS_KEY="$replacement_key"
+  export ARVAN_ACCESS_KEY
+  unset replacement_key
+done
 
 if [[ "$BACKGROUND" == "1" ]]; then
   log "Starting the certificate job in the background"
