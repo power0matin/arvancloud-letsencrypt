@@ -1,0 +1,26 @@
+name: Shell checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  shell-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell syntax
+        run: |
+          bash -n install.sh
+          bash -n menu.sh
+          bash -n core.sh
+          sh -n src/dns_arvan.sh
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes shellcheck
+      - name: Run ShellCheck
+        run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
