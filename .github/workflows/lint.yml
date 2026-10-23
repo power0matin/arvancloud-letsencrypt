@@ -80,7 +80,7 @@ jobs:
       - name: Install test and shell tooling
         env:
           ACTIONLINT_VERSION: "1.7.12"
-          ACTIONLINT_SHA256: "72a44b32c2d032700e6d0c23ca2f540b67519ec68db098ddfcfa96059e61f723"
+          ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
         run: |
           set -Eeuo pipefail
           sudo apt-get update
