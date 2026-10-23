@@ -49,15 +49,15 @@ less install.sh
 bash install.sh
 ```
 
-Review any remote installer before running it with root privileges. The `latest` branch is the moving installation channel; after a successful release, the release workflow advances it to the published source commit. For a fixed version, replace `latest` with a version tag such as `v1.1.2`.
+Review any remote installer before running it with root privileges. The `latest` branch is the moving installation channel; after a successful release, the release workflow advances it to the published source commit. For a fixed version, replace `latest` with a version tag such as `v1.1.3`.
 
 ## Release
 
 The installer and menu load matching components from the moving `latest` branch. The release workflow advances that branch after publishing a release; use a version tag instead of `latest` when you need reproducible, version-pinned installation.
 
-To publish the next version, update `core.sh` and `CHANGELOG.md`, let CI pass, then open **Actions → Publish GitHub Release**. Enter the new semantic version tag (for example, `v1.1.2`) and choose `PUBLISH` in the confirmation field.
+To publish the next version, update `core.sh` and `CHANGELOG.md`, let CI pass, then open **Actions → Publish GitHub Release**. Enter the new semantic version tag (for example, `v1.1.4`) and choose `PUBLISH` in the confirmation field.
 
-Release titles contain **only the version** (for example, `v1.1.2`). The project name and changelog notes belong in the release description. The workflow refuses to publish if the repository is not public, the tag or release already exists, or the matching changelog section is missing.
+Release titles contain **only the version** (for example, `v1.1.3`). The project name and changelog notes belong in the release description. The workflow refuses to publish if the repository is not public, the tag or release already exists, or the matching changelog section is missing.
 ## Interactive menu
 
 The menu offers:

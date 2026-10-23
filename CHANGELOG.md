@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-10-24
+
+- Show certificate output paths in the interactive terminal while continuing to append issuance output to the ACME log.
+- Keep background issuance logs available and print the destination directory before starting the background job.
+
+
 ## [1.1.2] - 2026-10-24
 
 - Set `/root/cert/<domain>/` as the default certificate output path for interactive and CLI installation.

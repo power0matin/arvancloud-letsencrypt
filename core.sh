@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-readonly SCRIPT_VERSION="1.1.2"
+readonly SCRIPT_VERSION="1.1.3"
 readonly ACME_HOME="/root/.acme.sh"
 readonly ACME_BIN="${ACME_HOME}/acme.sh"
 readonly DNSAPI_PATH="${ACME_HOME}/dnsapi/dns_arvan.sh"
@@ -439,7 +439,11 @@ issue_and_install() {
 }
 
 run_worker() {
-  issue_and_install >>"${LOG_DIR}/acme-issue.log" 2>&1
+  if [[ "$BACKGROUND" == "1" ]]; then
+    issue_and_install >>"${LOG_DIR}/acme-issue.log" 2>&1
+  else
+    issue_and_install > >(tee -a "${LOG_DIR}/acme-issue.log") 2>&1
+  fi
   log "Completed certificate job for $DOMAIN" >>"${LOG_DIR}/acme-issue.log"
 }
 
