@@ -12,6 +12,7 @@ Thanks for helping improve ArvanCloud Let's Encrypt.
    - `bash -n core.sh`
    - `sh -n src/dns_arvan.sh`
    - `shellcheck install.sh menu.sh core.sh src/dns_arvan.sh`
+   - `bats tests/dns_arvan.bats` (requires Bats and `jq`)
 4. Use Conventional Commits (for example, `fix: handle paginated DNS records`) and semantic versioning for releases.
 5. Never commit API keys, certificates, private keys, ACME account configuration, server logs, or production DNS-zone inventories.
 6. Prefer mocked API tests or a dedicated DNS test zone. Never test changes against a production zone.
