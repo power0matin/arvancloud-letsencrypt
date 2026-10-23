@@ -201,6 +201,7 @@ install_dns_plugin() {
   fi
   install -m 700 /dev/stdin "$DNSAPI_PATH" <<'PLUGIN'
 #!/usr/bin/env sh
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # This file is embedded in core.sh to support one-line installation. Keep both copies aligned.
 
