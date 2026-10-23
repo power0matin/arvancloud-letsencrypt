@@ -116,7 +116,36 @@ _arvan_rest() {
       response="$(_post "" "$ARVAN_API_URL/$ep" "" "$mtd")" || return 1
       ;;
     GET)
-      response="$(_get "$ARVAN_API_URL/$ep$data")" || return 1
+      _arvan_url="$ARVAN_API_URL/$ep$data"
+      _arvan_attempt=1
+      while :; do
+        response="$(_get "$_arvan_url")"
+        _arvan_get_ret=$?
+        _arvan_http_status=""
+        if [ -n "${HTTP_HEADER:-}" ] && [ -f "$HTTP_HEADER" ]; then
+          _arvan_http_status="$(awk '/^HTTP[\/ ]/ { status=$2 } END { print status }' "$HTTP_HEADER")"
+        fi
+
+        _arvan_retryable=0
+        if [ "$_arvan_get_ret" -ne 0 ]; then
+          _arvan_retryable=1
+        else
+          case "$_arvan_http_status" in
+            429|5[0-9][0-9]) _arvan_retryable=1 ;;
+          esac
+        fi
+
+        [ "$_arvan_retryable" -eq 0 ] && break
+        if [ "$_arvan_attempt" -ge 3 ]; then
+          _err "ArvanCloud GET request failed after $_arvan_attempt attempts (HTTP status ${_arvan_http_status:-unknown})."
+          return 1
+        fi
+
+        _arvan_delay="$_arvan_attempt"
+        _info "Temporary ArvanCloud GET failure (HTTP status ${_arvan_http_status:-unknown}); retrying in ${_arvan_delay}s."
+        _sleep "$_arvan_delay"
+        _arvan_attempt=$((_arvan_attempt + 1))
+      done
       ;;
     *) _err "Unsupported Arvan HTTP method: $mtd"; return 1 ;;
   esac
