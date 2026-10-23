@@ -28,7 +28,8 @@ usage() {
 [[ $# -eq 1 ]] || { usage >&2; exit 2; }
 [[ -x "$ACME_SCRIPT" ]] || { printf 'acme.sh is not installed at %s. Install the project first.\n' "$ACME_SCRIPT" >&2; exit 1; }
 
-readonly SOURCE_PLUGIN="$(readlink -f -- "$1")"
+SOURCE_PLUGIN="$(readlink -f -- "$1")"
+readonly SOURCE_PLUGIN
 [[ -f "$SOURCE_PLUGIN" ]] || { printf 'DNS plugin source does not exist: %s\n' "$SOURCE_PLUGIN" >&2; exit 1; }
 
 DOMAIN=""
