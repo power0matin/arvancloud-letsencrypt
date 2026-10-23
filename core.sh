@@ -458,7 +458,7 @@ while true; do
       printf '\nERROR: The key can reach ArvanCloud, but it cannot see the requested DNS zone.\n'
       ;;
     *)
-      die "Could not verify ArvanCloud access (check the API/network and ${LOG_DIR}/install.log)."
+      die "Could not verify ArvanCloud access (check the API/network and $LOG_DIR/install.log)."
       ;;
   esac
 
@@ -469,33 +469,7 @@ while true; do
   IFS= read -r -s replacement_key < /dev/tty || die "Could not read the replacement key."
   printf '\n' > /dev/tty
   [[ -n "$replacement_key" ]] || die "Access verification cancelled. Fix the key or its IAM policy, then run the certificate step again."
-  [[ "$replacement_key" != *
-  log "Starting the certificate job in the background"
-  trap '' HUP
-  run_worker < /dev/null &
-  worker_pid="$!"
-  disown "$worker_pid" 2>/dev/null || true
-  log "Started PID $worker_pid"
-  log "Follow progress with: tail -f ${LOG_DIR}/acme-issue.log"
-else
-  run_worker
-fi
-
-log "Repository script version $SCRIPT_VERSION finished setup"
-\n'* && "$replacement_key" != *
-  log "Starting the certificate job in the background"
-  trap '' HUP
-  run_worker < /dev/null &
-  worker_pid="$!"
-  disown "$worker_pid" 2>/dev/null || true
-  log "Started PID $worker_pid"
-  log "Follow progress with: tail -f ${LOG_DIR}/acme-issue.log"
-else
-  run_worker
-fi
-
-log "Repository script version $SCRIPT_VERSION finished setup"
-\r'* ]] || die "Arvan access key must be a single line."
+  [[ "$replacement_key" != *$'\n'* && "$replacement_key" != *$'\r'* ]] || die "Arvan access key must be a single line."
   ARVAN_ACCESS_KEY="$replacement_key"
   export ARVAN_ACCESS_KEY
   unset replacement_key
@@ -508,7 +482,7 @@ if [[ "$BACKGROUND" == "1" ]]; then
   worker_pid="$!"
   disown "$worker_pid" 2>/dev/null || true
   log "Started PID $worker_pid"
-  log "Follow progress with: tail -f ${LOG_DIR}/acme-issue.log"
+  log "Follow progress with: tail -f $LOG_DIR/acme-issue.log"
 else
   run_worker
 fi
