@@ -80,6 +80,8 @@ jobs:
       - name: Install ShellCheck
         run: |
           sudo apt-get update
-          sudo apt-get install --yes shellcheck
+          sudo apt-get install --yes bats jq shellcheck
+      - name: Run DNS plugin behavioral tests
+        run: bats tests/dns_arvan.bats
       - name: Run ShellCheck
         run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh

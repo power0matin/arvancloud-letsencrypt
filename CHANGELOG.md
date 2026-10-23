@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Add Bats-based mocked tests for ArvanCloud zone discovery, TXT creation and cleanup, malformed responses, credential absence, and API failures.
+
 ## [1.1.4]
 
 - Replace the abbreviated license summary with the complete GPL-3.0-or-later text and document the upstream ArvanCloud DNS plugin provenance.

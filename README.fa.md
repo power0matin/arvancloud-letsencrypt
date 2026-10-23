@@ -133,7 +133,8 @@ sudo bash install.sh --help</code></pre>
 bash -n menu.sh
 bash -n core.sh
 sh -n src/dns_arvan.sh
-shellcheck install.sh menu.sh core.sh src/dns_arvan.sh</code></pre>
+shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
+bats tests/dns_arvan.bats</code></pre>
 <p dir="rtl" align="right">نسخه‌های منتشرشده در صفحهٔ <a href="https://github.com/power0matin/arvancloud-letsencrypt/releases">Releases</a> قرار دارند. عنوان Release فقط شمارهٔ نسخه است؛ نام پروژه و توضیحات تغییرات در بدنهٔ Release می‌آیند. مجوز پروژه <span dir="ltr">GPL-3.0-or-later</span> است؛ متن کامل در <a href="./LICENSE">LICENSE</a> قرار دارد. منشأ افزونهٔ DNS نیز در <a href="./THIRD_PARTY_NOTICES.md">اعلان‌های اجزای ثالث</a> توضیح داده شده است.</p>
 
 <h2 dir="rtl" align="right">تماس و پشتیبانی</h2>
