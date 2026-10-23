@@ -112,7 +112,7 @@ Choose an output directory and reload Nginx when installation succeeds:
 ```bash
 sudo bash install.sh \
   --domain example.com \
-  --install-dir /etc/ssl/acme/example.com \
+  --install-dir /root/cert/example.com \
   --reload-cmd 'systemctl reload nginx'
 ```
 
@@ -145,7 +145,7 @@ sudo bash install.sh --help
 
 ## Certificate output
 
-Generic mode defaults to ``/etc/ssl/acme/DOMAIN/``:
+All installation modes default to ``/root/cert/DOMAIN/``. After successful installation, the script prints the absolute output directory and paths to each certificate file. The ``--install-dir`` option overrides this default.
 
 | File | Purpose |
 | --- | --- |
@@ -154,7 +154,7 @@ Generic mode defaults to ``/etc/ssl/acme/DOMAIN/``:
 | ``fullchain.pem`` | Leaf certificate plus intermediate chain |
 | ``privkey.pem`` | Private key; mode ``600`` |
 
-With ``--x-ui``, the default output directory is ``/root/cert/DOMAIN/``. Existing x-ui configuration or its database is not modified. Configure the service to use the corresponding output paths.
+With ``--x-ui``, the script also checks that ``x-ui`` is installed and runs ``x-ui restart`` after successful certificate installation. It does not modify x-ui configuration or its database. If you use a custom ``--install-dir``, configure the service to read certificates from that location.
 
 ## Credential and log handling
 

@@ -37,6 +37,20 @@ jobs:
               raise SystemExit("Embedded DNS plugin differs from src/dns_arvan.sh.")
           print("Embedded DNS plugin parity passed.")
           PY
+      - name: Check default certificate output path
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          core = Path("core.sh").read_text()
+          menu = Path("menu.sh").read_text()
+          entry = Path("install.sh").read_text()
+          assert 'INSTALL_DIR="${INSTALL_DIR:-/root/cert/${DOMAIN}}"' in core
+          assert 'Certificate files are available at:' in core
+          assert 'Certificate output directory [/root/cert/${domain}]' in menu
+          assert '"/root/cert/${DOMAIN}/fullchain.pem" "/etc/ssl/acme/${DOMAIN}/fullchain.pem"' in entry
+          print("Default certificate path and user-facing path output checks passed.")
+          PY
       - name: Install ShellCheck
         run: |
           sudo apt-get update

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-readonly SCRIPT_VERSION="1.1.1"
+readonly SCRIPT_VERSION="1.1.2"
 readonly ACME_HOME="/root/.acme.sh"
 readonly ACME_BIN="${ACME_HOME}/acme.sh"
 readonly DNSAPI_PATH="${ACME_HOME}/dnsapi/dns_arvan.sh"
@@ -32,7 +32,7 @@ Options:
   --email EMAIL             Email used when installing acme.sh
   --install-dir DIR        Certificate output directory
   --reload-cmd COMMAND     Command run after a successful certificate install
-  --x-ui                    Use /root/cert/DOMAIN and x-ui restart
+  --x-ui                    Restart x-ui after successful installation
   --background              Keep issuance running after SSH disconnect
   --force                   Force a new issuance
   --dns-sleep SECONDS       DNS propagation wait time (default: 180)
@@ -130,12 +130,11 @@ done
 [[ "$DNSSLEEP" =~ ^[0-9]+$ ]] || die "--dns-sleep must be an integer."
 [[ "$DNSSLEEP" -le 3600 ]] || die "--dns-sleep must not exceed 3600 seconds."
 
+INSTALL_DIR="${INSTALL_DIR:-/root/cert/${DOMAIN}}"
+
 if [[ "$USE_XUI" == "1" ]]; then
-  INSTALL_DIR="${INSTALL_DIR:-/root/cert/${DOMAIN}}"
   RELOAD_CMD="${RELOAD_CMD:-x-ui restart}"
   command -v x-ui >/dev/null 2>&1 || die "--x-ui was requested but x-ui was not found."
-else
-  INSTALL_DIR="${INSTALL_DIR:-/etc/ssl/acme/${DOMAIN}}"
 fi
 
 [[ "$INSTALL_DIR" == /* && "$INSTALL_DIR" != "/" ]] || die "--install-dir must be an absolute path other than /."
@@ -430,6 +429,12 @@ issue_and_install() {
   chmod 600 "${INSTALL_DIR}/privkey.pem"
   chmod 644 "${INSTALL_DIR}/cert.pem" "${INSTALL_DIR}/chain.pem" "${INSTALL_DIR}/fullchain.pem"
   log "Certificate installed successfully"
+  printf '\nCertificate files are available at:\n'
+  printf '  Directory:     %s\n' "$INSTALL_DIR"
+  printf '  Certificate:   %s\n' "${INSTALL_DIR}/cert.pem"
+  printf '  Chain:         %s\n' "${INSTALL_DIR}/chain.pem"
+  printf '  Full chain:    %s\n' "${INSTALL_DIR}/fullchain.pem"
+  printf '  Private key:   %s\n\n' "${INSTALL_DIR}/privkey.pem"
   openssl x509 -in "${INSTALL_DIR}/fullchain.pem" -noout -subject -issuer -dates -ext subjectAltName
 }
 
@@ -476,6 +481,7 @@ while true; do
 done
 
 if [[ "$BACKGROUND" == "1" ]]; then
+  log "Certificate output directory: $INSTALL_DIR"
   log "Starting the certificate job in the background"
   trap '' HUP
   run_worker < /dev/null &

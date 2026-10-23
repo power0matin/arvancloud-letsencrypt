@@ -6,6 +6,9 @@
 - Add automated CI validation that the embedded ArvanCloud DNS plugin matches its source file.
 - Add structured issue and pull-request templates to improve public bug reports while discouraging secret disclosure.
 - Standardize future release titles to the version only, with the project name in the release description.
+- Use `/root/cert/<domain>/` as the default certificate output directory in both CLI and interactive installs.
+- Print the resolved output directory and absolute certificate file paths after successful installation; also show the target path before a background job starts.
+- Prefer the new certificate path in the information command while preserving `/etc/ssl/acme/<domain>/` as a legacy lookup fallback.
 
 
 ## [1.1.1] - 2026-10-23

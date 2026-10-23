@@ -42,7 +42,7 @@ Issue options:
   --email EMAIL             ACME account email
   --install-dir DIR         Certificate output directory
   --reload-cmd COMMAND      Command run after successful installation
-  --x-ui                    Use /root/cert/DOMAIN and x-ui restart
+  --x-ui                    Restart x-ui after successful installation
   --background              Continue issuance after SSH disconnect
   --force                   Force a new certificate order
   --dns-sleep SECONDS       DNS propagation wait (default: 180)
@@ -76,7 +76,7 @@ run_info() {
   local domain="$1" file candidate
   validate_domain "$domain"
   file=""
-  for candidate in "/etc/ssl/acme/${DOMAIN}/fullchain.pem" "/root/cert/${DOMAIN}/fullchain.pem"; do
+  for candidate in "/root/cert/${DOMAIN}/fullchain.pem" "/etc/ssl/acme/${DOMAIN}/fullchain.pem"; do
     if [[ -s "$candidate" ]]; then file="$candidate"; break; fi
   done
   [[ -n "$file" ]] || die "No certificate found in the default output paths for ${DOMAIN}."

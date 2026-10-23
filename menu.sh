@@ -58,11 +58,11 @@ issue_flow() {
   args+=(--domain "$domain")
   if [[ -n "$email" ]]; then args+=(--email "$email"); fi
 
-  prompt_line "Use x-ui paths and restart command? [y/N]: " answer "n"
+  prompt_line "Restart x-ui after installation? [y/N]: " answer "n"
   if [[ "$answer" =~ ^[Yy]$ ]]; then
     args+=(--x-ui)
   else
-    prompt_line "Certificate output directory [/etc/ssl/acme/${domain}]: " output_dir "/etc/ssl/acme/${domain}"
+    prompt_line "Certificate output directory [/root/cert/${domain}]: " output_dir "/root/cert/${domain}"
     if [[ -n "$output_dir" ]]; then args+=(--install-dir "$output_dir"); fi
     prompt_line "Optional reload command (blank for none): " reload_cmd
     if [[ -n "$reload_cmd" ]]; then args+=(--reload-cmd "$reload_cmd"); fi
@@ -92,7 +92,7 @@ run_info() {
   domain="$(printf '%s' "$domain" | tr '[:upper:]' '[:lower:]' | sed 's/\.$//')"
   [[ "$domain" =~ ^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$ ]] || { warn "Invalid domain."; return 0; }
   file=""
-  for candidate in "/etc/ssl/acme/${domain}/fullchain.pem" "/root/cert/${domain}/fullchain.pem"; do
+  for candidate in "/root/cert/${domain}/fullchain.pem" "/etc/ssl/acme/${domain}/fullchain.pem"; do
     if [[ -s "$candidate" ]]; then file="$candidate"; break; fi
   done
   [[ -n "$file" ]] || { warn "No certificate found in the default output paths."; return 0; }

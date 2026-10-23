@@ -86,7 +86,7 @@ bash install.sh</code></pre>
 less install.sh</code></pre>
 <p dir="rtl" align="right">پس از بررسی، برای صدور گواهی یا استفاده از گزینه‌های مدیریتی:</p>
 <pre dir="ltr" align="left"><code>sudo bash install.sh --domain example.com
-sudo bash install.sh --domain example.com --install-dir /etc/ssl/acme/example.com --reload-cmd 'systemctl reload nginx'
+sudo bash install.sh --domain example.com --install-dir /root/cert/example.com --reload-cmd 'systemctl reload nginx'
 sudo bash install.sh --domain example.com --x-ui
 sudo bash install.sh --domain example.com --background
 
@@ -99,14 +99,14 @@ sudo bash install.sh --help</code></pre>
 <p dir="rtl" align="right"><code dir="ltr">--renew</code> بررسی عادی تمدید را اجرا می‌کند و به‌معنای اجبار به صدور مجدد همهٔ گواهی‌ها نیست. از <code dir="ltr">--force</code> فقط برای سفارش صدور جدید و عمدی استفاده کنید.</p>
 
 <h2 dir="rtl" align="right">مسیر فایل‌های گواهی</h2>
-<p dir="rtl" align="right">مسیر پیش‌فرض حالت عمومی <code dir="ltr">/etc/ssl/acme/DOMAIN/</code> است:</p>
+<p dir="rtl" align="right">مسیر پیش‌فرض همهٔ حالت‌های نصب <code dir="ltr">/root/cert/DOMAIN/</code> است. پس از نصب موفق، اسکریپت مسیر پوشه و مسیر کامل هر فایل گواهی را به کاربر نمایش می‌دهد. گزینهٔ <code dir="ltr">--install-dir</code> برای تعیین مسیر دلخواه است:</p>
 <table dir="ltr" align="left"><thead><tr><th>File</th><th>Purpose</th></tr></thead><tbody>
 <tr><td><code>cert.pem</code></td><td>گواهی اصلی</td></tr>
 <tr><td><code>chain.pem</code></td><td>گواهی‌های میانی</td></tr>
 <tr><td><code>fullchain.pem</code></td><td>گواهی اصلی به‌همراه زنجیره</td></tr>
 <tr><td><code>privkey.pem</code></td><td>کلید خصوصی؛ دسترسی فایل 600</td></tr>
 </tbody></table>
-<p dir="rtl" align="right">با گزینهٔ <code dir="ltr">--x-ui</code> مسیر پیش‌فرض <code dir="ltr">/root/cert/DOMAIN/</code> است و پس از نصب دستور <code dir="ltr">x-ui restart</code> اجرا می‌شود. تنظیمات یا پایگاه دادهٔ x-ui به‌صورت خودکار تغییر نمی‌کند.</p>
+<p dir="rtl" align="right">گزینهٔ <code dir="ltr">--x-ui</code> بررسی می‌کند x-ui نصب باشد و پس از نصب موفق دستور <code dir="ltr">x-ui restart</code> را اجرا می‌کند. این گزینه تنظیمات یا پایگاه دادهٔ x-ui را تغییر نمی‌دهد. در صورت استفاده از <code dir="ltr">--install-dir</code> سفارشی، سرویس را برای استفاده از همان مسیر تنظیم کنید.</p>
 
 <h2 dir="rtl" align="right">تمدید، امنیت و لاگ‌ها</h2>
 <p dir="rtl" align="right">گواهی در <code dir="ltr">acme.sh</code> ثبت می‌شود و وظیفهٔ تمدید زمان‌بندی‌شده بررسی می‌شود. برای بررسی وضعیت، از گزینه‌های <code dir="ltr">--list</code> و <code dir="ltr">--info</code> استفاده کنید. اگر زمان تمدید نرسیده باشد، بررسی عادی ممکن است سفارش جدیدی ایجاد نکند؛ این رفتار به‌تنهایی نشانهٔ خرابی نصب نیست.</p>
