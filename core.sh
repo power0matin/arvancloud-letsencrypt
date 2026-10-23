@@ -140,7 +140,9 @@ fi
 
 [[ "$INSTALL_DIR" == /* && "$INSTALL_DIR" != "/" ]] || die "--install-dir must be an absolute path other than /."
 
+umask 077
 mkdir -p "$LOG_DIR"
+chmod 700 "$LOG_DIR"
 exec > >(tee -a "${LOG_DIR}/install.log") 2>&1
 
 if [[ "$WORKER" != "1" ]]; then
