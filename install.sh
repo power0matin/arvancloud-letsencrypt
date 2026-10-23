@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-readonly RAW_BASE="https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/v1.1.0"
+readonly RAW_BASE="https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/v1.1.1"
 readonly MENU_URL="${RAW_BASE}/menu.sh"
 readonly CORE_URL="${RAW_BASE}/core.sh"
 readonly ACME_HOME="/root/.acme.sh"
