@@ -359,7 +359,43 @@ verify_arvan_access() {
   printf 'header = "Authorization: %s"\nheader = "Accept: application/json"\n' "$auth_header" > "$AUTH_CONFIG_FILE"
 
   while true; do
-    if ! result="$(curl --config "$AUTH_CONFIG_FILE" --connect-timeout 10 --max-time 30 -sS -w 
+    if ! result="$(curl --config "$AUTH_CONFIG_FILE" --connect-timeout 10 --max-time 30 -sS -w $'\n%{http_code}' "${ARVAN_API_URL}/?page=${page}&per_page=100")"; then
+      cleanup_auth_config
+      log "Could not connect to the ArvanCloud API."
+      return 20
+    fi
+    status="${result##*$'\n'}"
+    body="${result%$'\n'*}"
+    if [[ "$status" != "200" ]]; then
+      cleanup_auth_config
+      log "ArvanCloud API check failed (HTTP ${status})."
+      printf '%s\n' "$body" | jq -c '{message: .message}' 2>/dev/null || true
+      if [[ "$status" == "401" || "$status" == "403" ]]; then
+        return 10
+      fi
+      return 20
+    fi
+    if ! printf '%s' "$body" | jq -e '.data | type == "array"' >/dev/null 2>&1; then
+      cleanup_auth_config
+      log "ArvanCloud returned an unexpected domains response."
+      return 20
+    fi
+    domain_found="$(printf '%s' "$body" | jq -r --arg target "$DOMAIN" 'any(.data[]?; .domain == $target)')"
+    if [[ "$domain_found" == "true" ]]; then
+      cleanup_auth_config
+      log "ArvanCloud API access verified for ${DOMAIN}."
+      return 0
+    fi
+    last_page="$(printf '%s' "$body" | jq -r '.meta.last_page // 1')"
+    [[ "$last_page" =~ ^[0-9]+$ ]] || last_page=1
+    [[ "$page" -lt "$last_page" ]] || break
+    page=$((page + 1))
+  done
+  cleanup_auth_config
+  log "The ArvanCloud key can reach the API but cannot see the requested DNS zone."
+  return 11
+}
+
 install_cron_if_missing() {
   if ! crontab -l 2>/dev/null | grep -Eq 'acme\.sh.*--cron'; then
     log "Installing the acme.sh cron job"
