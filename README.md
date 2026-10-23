@@ -128,7 +128,7 @@ With ``--x-ui``, the default output directory is ``/root/cert/DOMAIN/``. Existin
 - Use an API key with only the permissions needed for the intended DNS zone.
 - The tool accepts a raw key or an ``Apikey ...`` value.
 - acme.sh stores DNS credentials in its account configuration for renewals. Keep ``/root/.acme.sh/`` and ``account.conf`` private.
-- Logs are stored in ``/var/log/arvancloud-letsencrypt/``, in a root-only directory.
+- Logs are stored in ``/var/log/arvancloud-letsencrypt/``; the directory is mode ``700`` and new log files use the root-only umask ``077``.
 - The installer does not save the complete DNS-zone API response in a persistent file or include a list of visible domains in logs.
 - Never post access keys, private keys, ACME account configuration, or unreviewed debug logs in issues.
 
