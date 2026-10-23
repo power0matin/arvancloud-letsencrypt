@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag (for example v1.1.0)"
+        description: "Release tag (for example v1.1.1)"
         required: true
-        default: "v1.1.0"
+        default: "v1.1.1"
         type: string
       confirmation:
         description: "Type PUBLISH to confirm creating a public release"
@@ -18,7 +18,7 @@ on:
           - "PUBLISH"
   push:
     branches:
-      - release/v1.1.0
+      - release/v1.1.1
 
 permissions:
   contents: write
@@ -70,7 +70,6 @@ jobs:
 
           forbidden = [
               "hyper" + "sentry" + ".top",
-              "matin" + "shahabadi" + ".ir",
               "arvan" + "-domains.json",
           ]
           ignored_parts = {".git"}
@@ -89,7 +88,7 @@ jobs:
 
       - name: Validate request, changelog, and repository visibility
         env:
-          RELEASE_TAG: ${{ inputs.tag || 'v1.1.0' }}
+          RELEASE_TAG: ${{ inputs.tag || 'v1.1.1' }}
           CONFIRMATION: ${{ inputs.confirmation || 'PUBLISH' }}
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -145,7 +144,7 @@ jobs:
 
       - name: Create public release
         env:
-          RELEASE_TAG: ${{ inputs.tag || 'v1.1.0' }}
+          RELEASE_TAG: ${{ inputs.tag || 'v1.1.1' }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
