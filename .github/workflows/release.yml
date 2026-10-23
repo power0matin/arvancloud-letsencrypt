@@ -150,3 +150,17 @@ jobs:
             --title "ArvanCloud Let's Encrypt $RELEASE_TAG" \
             --notes-file "$RUNNER_TEMP/release-notes.md" \
             "$RUNNER_TEMP/SHA256SUMS"
+
+      - name: Update latest installation channel
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/latest" >/dev/null 2>&1; then
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/heads/latest" \
+              -f sha="$GITHUB_SHA" -F force=true >/dev/null
+          else
+            gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" \
+              -f ref="refs/heads/latest" -f sha="$GITHUB_SHA" >/dev/null
+          fi
+          echo "The latest installation channel now points to $GITHUB_SHA."
