@@ -28,12 +28,12 @@ jobs:
               if not match:
                   raise SystemExit(f"{name} must declare SCRIPT_VERSION.")
               versions[name] = match.group(1)
-              if 'readonly RELEASE_TAG="v${SCRIPT_VERSION}"' not in content:
-                  raise SystemExit(f"{name} must resolve components through its immutable version tag.")
           if len(set(versions.values())) != 1:
               raise SystemExit(f"Installer/menu/core versions differ: {versions}")
           for name in ["install.sh", "menu.sh"]:
               content = Path(name).read_text()
+              if 'readonly RELEASE_TAG="v${SCRIPT_VERSION}"' not in content:
+                  raise SystemExit(f"{name} must resolve components through its immutable version tag.")
               if 'readonly RELEASE_BASE="https://github.com/${REPOSITORY}/releases/download/${RELEASE_TAG}"' not in content:
                   raise SystemExit(f"{name} must build release URLs from its immutable version tag.")
               if '"${RELEASE_BASE}/SHA256SUMS"' not in content:
