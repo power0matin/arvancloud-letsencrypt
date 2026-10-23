@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 set -Eeuo pipefail
 
 readonly SCRIPT_VERSION="1.1.4"
