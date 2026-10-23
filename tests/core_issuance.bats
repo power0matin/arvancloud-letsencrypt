@@ -108,7 +108,74 @@ acme_install_count() {
   [ "$(stat -c '%a' "$INSTALL_DIR/privkey.pem")" = "600" ]
   [ "$(stat -c '%a' "$INSTALL_DIR/cert.pem")" = "644" ]
   [ "$(acme_install_count)" -eq 1 ]
-  [[ "$output" == *"Certificate installed successfully"* ]]
+  grep -Fq 
+}
+
+@test "acme exit code 2 is accepted only when the expected certificate exists" {
+  MOCK_ISSUE_STATUS=2
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+}
+
+@test "acme exit code 2 without an existing certificate fails before installation" {
+  MOCK_ISSUE_STATUS=2
+  MOCK_CERT_AVAILABLE=0
+  export MOCK_ISSUE_STATUS MOCK_CERT_AVAILABLE
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  ! grep -Fq 
+}
+
+@test "failed issuance never invokes certificate installation" {
+  MOCK_ISSUE_STATUS=1
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "failed acme.sh install step is not reported as success" {
+  MOCK_INSTALL_STATUS=1
+  export MOCK_INSTALL_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
 }
 
 @test "acme exit code 2 is accepted only when the expected certificate exists" {
@@ -165,6 +232,500 @@ acme_install_count() {
   [ -s "$INSTALL_DIR/privkey.pem" ]
   [ ! -s "$INSTALL_DIR/fullchain.pem" ]
   [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "failed issuance never invokes certificate installation" {
+  MOCK_ISSUE_STATUS=1
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  ! grep -Fq 
+}
+
+@test "failed acme.sh install step is not reported as success" {
+  MOCK_INSTALL_STATUS=1
+  export MOCK_INSTALL_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "acme exit code 2 is accepted only when the expected certificate exists" {
+  MOCK_ISSUE_STATUS=2
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+}
+
+@test "acme exit code 2 without an existing certificate fails before installation" {
+  MOCK_ISSUE_STATUS=2
+  MOCK_CERT_AVAILABLE=0
+  export MOCK_ISSUE_STATUS MOCK_CERT_AVAILABLE
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "failed issuance never invokes certificate installation" {
+  MOCK_ISSUE_STATUS=1
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "failed acme.sh install step is not reported as success" {
+  MOCK_INSTALL_STATUS=1
+  export MOCK_INSTALL_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "failed acme.sh install step is not reported as success" {
+  MOCK_INSTALL_STATUS=1
+  export MOCK_INSTALL_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+  ! grep -Fq 
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "acme exit code 2 is accepted only when the expected certificate exists" {
+  MOCK_ISSUE_STATUS=2
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+}
+
+@test "acme exit code 2 without an existing certificate fails before installation" {
+  MOCK_ISSUE_STATUS=2
+  MOCK_CERT_AVAILABLE=0
+  export MOCK_ISSUE_STATUS MOCK_CERT_AVAILABLE
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "failed issuance never invokes certificate installation" {
+  MOCK_ISSUE_STATUS=1
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "failed acme.sh install step is not reported as success" {
+  MOCK_INSTALL_STATUS=1
+  export MOCK_INSTALL_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  ! grep -Fq 
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "acme exit code 2 is accepted only when the expected certificate exists" {
+  MOCK_ISSUE_STATUS=2
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+}
+
+@test "acme exit code 2 without an existing certificate fails before installation" {
+  MOCK_ISSUE_STATUS=2
+  MOCK_CERT_AVAILABLE=0
+  export MOCK_ISSUE_STATUS MOCK_CERT_AVAILABLE
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "failed issuance never invokes certificate installation" {
+  MOCK_ISSUE_STATUS=1
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "failed acme.sh install step is not reported as success" {
+  MOCK_INSTALL_STATUS=1
+  export MOCK_INSTALL_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "acme exit code 2 is accepted only when the expected certificate exists" {
+  MOCK_ISSUE_STATUS=2
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+}
+
+@test "acme exit code 2 without an existing certificate fails before installation" {
+  MOCK_ISSUE_STATUS=2
+  MOCK_CERT_AVAILABLE=0
+  export MOCK_ISSUE_STATUS MOCK_CERT_AVAILABLE
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  ! grep -Fq 
+}
+
+@test "failed issuance never invokes certificate installation" {
+  MOCK_ISSUE_STATUS=1
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "failed acme.sh install step is not reported as success" {
+  MOCK_INSTALL_STATUS=1
+  export MOCK_INSTALL_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "failed issuance never invokes certificate installation" {
+  MOCK_ISSUE_STATUS=1
+  export MOCK_ISSUE_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 0 ]
+  ! grep -Fq 
+}
+
+@test "failed acme.sh install step is not reported as success" {
+  MOCK_INSTALL_STATUS=1
+  export MOCK_INSTALL_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "failed acme.sh install step is not reported as success" {
+  MOCK_INSTALL_STATUS=1
+  export MOCK_INSTALL_STATUS
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ "$(acme_install_count)" -eq 1 ]
+  ! grep -Fq 
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  [[ "$output" != *"Certificate installed successfully"* ]]
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
+}
+
+@test "partial certificate installation fails instead of reporting success" {
+  MOCK_PARTIAL_INSTALL=1
+  export MOCK_PARTIAL_INSTALL
+
+  run strict_issue_and_install
+
+  [ "$status" -ne 0 ]
+  [ -s "$INSTALL_DIR/privkey.pem" ]
+  [ ! -s "$INSTALL_DIR/fullchain.pem" ]
+  ! grep -Fq 
+}
+
+@test "reload command is forwarded as a single argument" {
+  RELOAD_CMD="systemctl reload nginx"
+
+  run strict_issue_and_install
+
+  [ "$status" -eq 0 ]
+  grep -Fq 'systemctl\ reload\ nginx' "$MOCK_LOG"
+}
+LOG\tCertificate installed successfully' "$MOCK_LOG"
 }
 
 @test "reload command is forwarded as a single argument" {
