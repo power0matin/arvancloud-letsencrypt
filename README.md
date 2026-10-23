@@ -49,11 +49,11 @@ less install.sh
 bash install.sh
 ```
 
-Review any remote installer before running it with root privileges. The `latest` branch is the moving installation channel; after a successful release, the release workflow advances it to the published source commit. For a fixed version, replace `latest` with a version tag such as `v1.1.3`.
+Review any remote installer before running it with root privileges. The `latest` branch is the moving bootstrap channel. The installer version embedded in that file pins companion downloads to the corresponding immutable release tag and verifies each downloaded executable component against that release's `SHA256SUMS` manifest. For a fixed bootstrap, replace `latest` in the URL with a release tag such as `v1.1.3`.
 
 ## Release
 
-The installer and menu load matching components from the moving `latest` branch. The release workflow advances that branch after publishing a release; use a version tag instead of `latest` when you need reproducible, version-pinned installation.
+The installer and menu resolve companion files from the same immutable version tag, then verify each downloaded component against the matching release checksum manifest before execution. The release workflow advances `latest` only after successful publication. SHA-256 verification detects mismatched or corrupted downloads; the manifest is not a cryptographic signature of the publisher.
 
 To publish a release, first merge the release candidate into `main` and confirm that CI passes. Then open **Actions → Publish GitHub Release**, select the `main` branch, enter the version that exactly matches `core.sh` and `CHANGELOG.md`, and explicitly choose `PUBLISH`. Pushes to release branches do not publish releases.
 
