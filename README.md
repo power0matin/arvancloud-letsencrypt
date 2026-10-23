@@ -8,6 +8,8 @@
 
 <p align="center">Issue and renew Let's Encrypt wildcard certificates using ArvanCloud DNS-01 validation.</p>
 
+<p align="center"><a href="./README.fa.html">راهنمای فارسی (HTML، راست‌چین)</a></p>
+
 ## Features
 
 - Issues a certificate for both `example.com` and `*.example.com`.
