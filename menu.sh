@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 readonly REPOSITORY="power0matin/arvancloud-letsencrypt"
-readonly RAW_BASE="https://raw.githubusercontent.com/${REPOSITORY}/v1.1.0"
+readonly RAW_BASE="https://raw.githubusercontent.com/${REPOSITORY}/v1.1.1"
 readonly INSTALL_URL="${RAW_BASE}/install.sh"
 readonly ACME_HOME="/root/.acme.sh"
 readonly ACME_BIN="${ACME_HOME}/acme.sh"
@@ -26,6 +26,16 @@ prompt_line() {
   printf '%s' "$prompt" > /dev/tty
   IFS= read -r value < /dev/tty || die "Could not read terminal input."
   printf -v "$var_name" '%s' "${value:-$default_value}"
+}
+
+clear_screen() {
+  if [[ -w /dev/tty ]]; then
+    if [[ -n "${TERM:-}" && "${TERM:-dumb}" != "dumb" ]] && command -v clear >/dev/null 2>&1; then
+      clear > /dev/tty 2>/dev/null || printf '\\033[2J\\033[H' > /dev/tty
+    else
+      printf '\\033[2J\\033[H' > /dev/tty
+    fi
+  fi
 }
 
 pause_menu() {
@@ -130,6 +140,7 @@ run_check() {
 }
 
 while true; do
+  clear_screen
   show_banner
   printf '  %s1%s  Issue and install a wildcard certificate\n' "$C_CYAN" "$C_RESET"
   printf '  %s2%s  List registered certificates\n' "$C_CYAN" "$C_RESET"
