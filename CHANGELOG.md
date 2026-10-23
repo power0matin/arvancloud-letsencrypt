@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Add a manual ACME staging runner that isolates the ACME account/configuration and certificate output, hides the ArvanCloud key prompt, and never deploys a staging certificate to production paths.
+
 - Resolve companion scripts from the same immutable release tag and verify downloaded components against that release's SHA-256 manifest before execution.
 
 - Add Bats-based mocked tests for ArvanCloud zone discovery, TXT creation and cleanup, malformed responses, credential absence, and API failures.
