@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 readonly REPOSITORY="power0matin/arvancloud-letsencrypt"
-readonly RAW_BASE="https://raw.githubusercontent.com/${REPOSITORY}/v1.1.1"
+readonly RAW_BASE="https://raw.githubusercontent.com/${REPOSITORY}/latest"
 readonly INSTALL_URL="${RAW_BASE}/install.sh"
 readonly ACME_HOME="/root/.acme.sh"
 readonly ACME_BIN="${ACME_HOME}/acme.sh"
