@@ -24,7 +24,7 @@ jobs:
           versions = {}
           for name in paths:
               content = Path(name).read_text()
-              match = re.search(r'^readonly SCRIPT_VERSION="([0-9]+\\.[0-9]+\\.[0-9]+)"$', content, re.MULTILINE)
+              match = re.search(r'^readonly SCRIPT_VERSION="([0-9]+\.[0-9]+\.[0-9]+)"$', content, re.MULTILINE)
               if not match:
                   raise SystemExit(f"{name} must declare SCRIPT_VERSION.")
               versions[name] = match.group(1)
