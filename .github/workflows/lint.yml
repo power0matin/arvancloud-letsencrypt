@@ -42,6 +42,28 @@ jobs:
                   raise SystemExit(f"{name} must verify checksums before running downloaded code.")
           print(f"Version-pinned installer components agree on v{versions['core.sh']}.")
           PY
+      - name: Validate ACME staging runner isolation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          staging = Path("tests/staging/run-acme-staging.sh").read_text()
+          required = [
+              "--server letsencrypt_test",
+              '--home "$STAGING_HOME"',
+              '--config-home "$STAGING_HOME/config"',
+              '--cert-home "$STAGING_HOME/certs"',
+              'trap cleanup EXIT',
+              'read -r -s Arvan_Token',
+          ]
+          for item in required:
+              if item not in staging:
+                  raise SystemExit(f"Staging test must include safety invariant: {item}")
+          for forbidden in ["--install-cert", "/root/cert/", "/etc/ssl/acme/"]:
+              if forbidden in staging:
+                  raise SystemExit(f"Staging test must not install or replace production certificates: {forbidden}")
+          print("ACME staging runner isolation checks passed.")
+          PY
       - name: Validate release workflow safety
         run: |
           set -Eeuo pipefail
@@ -72,6 +94,7 @@ jobs:
           bash -n menu.sh
           bash -n core.sh
           sh -n src/dns_arvan.sh
+          bash -n tests/staging/run-acme-staging.sh
       - name: Smoke test CLI help
         run: |
           bash install.sh --help >/dev/null
@@ -124,4 +147,4 @@ jobs:
       - name: Run DNS plugin behavioral tests
         run: bats tests/dns_arvan.bats
       - name: Run ShellCheck
-        run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
+        run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh tests/staging/run-acme-staging.sh

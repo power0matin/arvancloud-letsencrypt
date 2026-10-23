@@ -23,7 +23,8 @@ The main gaps to close next are behavioral test coverage, release-workflow safet
 
 ## v1.1.4 — Security and release discipline
 
-**Type:** Patch release · **Priority:** P0
+**Type:** Patch release · **Priority:** P0  
+**Implementation status:** Security and release-integrity changes are merged to `main`; `v1.1.4` has not been tagged or published.
 
 ### Planned work
 
@@ -48,7 +49,8 @@ The main gaps to close next are behavioral test coverage, release-workflow safet
 ## v1.2.0 — Behavioral tests and DNS API resilience
 
 **Type:** Minor release · **Priority:** P1  
-**Dependency:** v1.1.4 release safeguards
+**Dependency:** v1.1.4 release safeguards  
+**Implementation status:** Mocked DNS tests, bounded GET retries, and actionlint are merged; recovery scenarios and successful optional staging validation remain open.
 
 ### Planned work
 
@@ -76,7 +78,8 @@ The main gaps to close next are behavioral test coverage, release-workflow safet
 ## v1.3.0 — Deterministic installation and artifact integrity
 
 **Type:** Minor release · **Priority:** P0/P1  
-**Dependency:** v1.2.0 behavioral coverage
+**Dependency:** v1.2.0 behavioral coverage  
+**Implementation status:** Version-pinned downloads and checksum verification are merged to `main` ahead of a formal release; publish only after the v1.2.0 reliability gate is met.
 
 ### Planned work
 

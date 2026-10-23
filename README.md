@@ -77,6 +77,10 @@ The menu reads user input from `/dev/tty`, so it works when the installer is pip
 - A domain whose authoritative DNS is managed by ArvanCloud.
 - An ArvanCloud access key with permission to list the intended zone and create, list, and delete DNS records.
 
+## Optional ACME staging test
+
+To validate ArvanCloud DNS-01 with a dedicated test subdomain without replacing service certificates, see the [manual ACME staging test](tests/staging/README.md). It uses a separate temporary acme.sh home and the Let's Encrypt staging CA; it does not deploy the resulting staging certificate.
+
 ## ArvanCloud API key setup
 
 Use an **ArvanCloud Machine User API key** and explicitly grant it access to the DNS zone. A key that authenticates successfully but cannot list the requested zone will fail with a message such as `The ArvanCloud key can reach the API but cannot see the requested DNS zone.`
