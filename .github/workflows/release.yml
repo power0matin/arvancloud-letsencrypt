@@ -61,7 +61,7 @@ jobs:
 
           core = Path("core.sh").read_text()
           source = Path("src/dns_arvan.sh").read_text()
-          marker = '  install -m 700 /dev/stdin "$DNSAPI_PATH" <<\\'PLUGIN\\'\\n'
+          marker = '  install -m 700 /dev/stdin "$DNSAPI_PATH" <<\'PLUGIN\'\n'
           if core.count(marker) != 1:
               raise SystemExit("Expected exactly one embedded DNS plugin block.")
           embedded = core.split(marker, 1)[1].split("\\nPLUGIN\\n", 1)[0]
@@ -117,7 +117,7 @@ jobs:
               found = 1
               next
             }
-            found && /^## \\[/ { exit }
+            found && /^## \[/ { exit }
             found { print }
           ' CHANGELOG.md)"
 
@@ -135,7 +135,7 @@ jobs:
             exit 1
           fi
 
-          printf '%s\\n' "$notes" > "$RUNNER_TEMP/release-notes.md"
+          printf '%s\n' "$notes" > "$RUNNER_TEMP/release-notes.md"
           echo "Release validation passed for $RELEASE_TAG."
 
       - name: Generate SHA-256 manifest
