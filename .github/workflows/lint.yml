@@ -116,8 +116,10 @@ jobs:
               raise SystemExit(f"Installer/menu/core versions differ: {versions}")
           for name in ["install.sh", "menu.sh"]:
               content = Path(name).read_text()
-              if "releases/download/${RELEASE_TAG}/SHA256SUMS" not in content:
-                  raise SystemExit(f"{name} must download its release checksum manifest.")
+              if 'readonly RELEASE_BASE="https://github.com/${REPOSITORY}/releases/download/${RELEASE_TAG}"' not in content:
+                  raise SystemExit(f"{name} must build release URLs from its immutable version tag.")
+              if '"${RELEASE_BASE}/SHA256SUMS"' not in content:
+                  raise SystemExit(f"{name} must download the checksum manifest for its pinned release.")
               if "sha256sum --check --status" not in content:
                   raise SystemExit(f"{name} must verify checksums before running downloaded code.")
           print(f"Version-pinned installer components agree on v{versions['core.sh']}.")
