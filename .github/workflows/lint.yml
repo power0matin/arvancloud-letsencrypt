@@ -18,6 +18,10 @@ jobs:
           bash -n menu.sh
           bash -n core.sh
           sh -n src/dns_arvan.sh
+      - name: Smoke test CLI help
+        run: |
+          bash install.sh --help >/dev/null
+          bash core.sh --help >/dev/null
       - name: Install ShellCheck
         run: |
           sudo apt-get update
