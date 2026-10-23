@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [1.1.4]
+
+- Replace the abbreviated license summary with the complete GPL-3.0-or-later text and document the upstream ArvanCloud DNS plugin provenance.
+- Require an explicitly confirmed manual release from the current main commit; separate read-only validation from the publisher job and pin checkout to a reviewed full commit SHA.
+- Clean up the temporary ArvanCloud authorization configuration on normal exits and common signals.
+- Document the restrictive certificate directory/private-key permissions and their implications for services running as non-root.
+
 ## [1.1.3] - 2026-10-24
 
 - Show certificate output paths in the interactive terminal while continuing to append issuance output to the ACME log.
