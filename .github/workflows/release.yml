@@ -1,6 +1,9 @@
 name: Publish GitHub Release
 
 on:
+  push:
+    branches:
+      - 'release/v*'
   workflow_dispatch:
     inputs:
       tag:
@@ -84,12 +87,15 @@ jobs:
           PY
 
       - name: Validate request, changelog, and repository visibility
+        id: validate
         env:
-          RELEASE_TAG: ${{ inputs.tag || 'v1.1.2' }}
+          RELEASE_TAG_INPUT: ${{ inputs.tag }}
           CONFIRMATION: ${{ inputs.confirmation || 'PUBLISH' }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
+
+          RELEASE_TAG="${RELEASE_TAG_INPUT:-${GITHUB_REF_NAME#release/}}"
 
           [[ "$CONFIRMATION" == "PUBLISH" ]] || {
             echo "Release cancelled: confirmation was not PUBLISH." >&2
@@ -135,6 +141,7 @@ jobs:
             printf '%s\n\n' "ArvanCloud Let's Encrypt"
             printf '%s\n' "$notes"
           } > "$RUNNER_TEMP/release-notes.md"
+          echo "release_tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
           echo "Release validation passed for $RELEASE_TAG."
 
       - name: Generate SHA-256 manifest
@@ -144,7 +151,7 @@ jobs:
 
       - name: Create public release
         env:
-          RELEASE_TAG: ${{ inputs.tag || 'v1.1.2' }}
+          RELEASE_TAG: ${{ steps.validate.outputs.release_tag }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
