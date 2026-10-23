@@ -201,6 +201,7 @@ bash -n menu.sh
 bash -n core.sh
 sh -n src/dns_arvan.sh
 shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
+bats tests/dns_arvan.bats
 ```
 
 Use a dedicated test zone and a separate least-privilege key. Never test changes against a production DNS zone.
