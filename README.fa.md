@@ -66,7 +66,9 @@
 
 <p dir="rtl" align="right">پس از اصلاح دسترسی‌ها، دستور زیر را روی سرور اجرا کنید. نصب‌کننده منوی تعاملی را باز می‌کند. پیش از اجرای هر اسکریپت راه‌دور با دسترسی مدیر، محتوای آن را بررسی کنید.</p>
 
-<pre dir="ltr" align="left"><code>curl -fsSL https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/v1.1.1/install.sh | sudo bash</code></pre>
+<pre dir="ltr" align="left"><code>curl -fsSL https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/latest/install.sh | sudo bash</code></pre>
+
+<p dir="rtl" align="right">این دستور از شاخهٔ متحرک <code dir="ltr">latest</code> استفاده می‌کند. پس از انتشار موفق نسخهٔ جدید، گردش‌کار انتشار این شاخه را به‌روزرسانی می‌کند. برای نصب نسخه‌ای ثابت، به‌جای <code dir="ltr">latest</code> تگ نسخهٔ موردنظر را قرار دهید.</p>
 
 <p dir="rtl" align="right">سپس گزینهٔ <code dir="ltr">1</code> را انتخاب و کلید را در ورودی مخفی وارد کنید.</p>
 
