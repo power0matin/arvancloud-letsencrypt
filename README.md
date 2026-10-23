@@ -32,24 +32,24 @@
 On a supported Debian/Ubuntu server, run this command as root. It opens the interactive menu:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/v1.1.0/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/v1.1.1/install.sh | sudo bash
 ```
 
 To inspect the entrypoint before running it:
 
 ```bash
-curl -fsSLo install.sh https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/v1.1.0/install.sh
+curl -fsSLo install.sh https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/v1.1.1/install.sh
 less install.sh
 bash install.sh
 ```
 
-Review any remote installer before running it with root privileges. The installer downloads its menu and certificate core from the version-pinned `v1.1.0` release tag, not from the moving `main` branch.
+Review any remote installer before running it with root privileges. The installer downloads its menu and certificate core from the version-pinned `v1.1.1` release tag, not from the moving `main` branch.
 
 ## Release
 
-The installer entrypoint and menu download matching components from the versioned `v1.1.0` tag instead of following the moving `main` branch.
+The installer entrypoint and menu download matching components from the versioned `v1.1.1` tag instead of following the moving `main` branch.
 
-After confirming that the repository is public and the release candidate has passed CI, run the **Publish GitHub Release** workflow from the Actions tab. Set the tag to `v1.1.0` and select `PUBLISH` in the confirmation field. The workflow refuses to create a release while repository visibility is private, when the tag already exists, or when the changelog has no matching version section.
+After confirming that the repository is public and the release candidate has passed CI, run the **Publish GitHub Release** workflow from the Actions tab. Set the tag to `v1.1.1` and select `PUBLISH` in the confirmation field. The workflow refuses to create a release while repository visibility is private, when the tag already exists, or when the changelog has no matching version section.
 
 ## Interactive menu
 
