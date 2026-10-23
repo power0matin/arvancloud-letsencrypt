@@ -23,6 +23,7 @@
 - Supports an optional x-ui-compatible certificate path and reload command.
 - Registers certificates with acme.sh for scheduled renewal.
 - Includes an interactive terminal menu plus non-interactive CLI commands.
+- Clears the terminal between menu views and allows a corrected ArvanCloud API key to be entered without repeating the domain and certificate options.
 - Requests the ArvanCloud API key without echoing the prompt input.
 - Checks the selected zone without saving the full domains API response to disk or printing other visible zones to logs.
 - Backs up an existing ArvanCloud DNS plugin before replacing it.
@@ -175,6 +176,8 @@ A normal renewal check can skip a certificate whose renewal window has not start
 **HTTP 401 / unauthenticated** — Confirm the key is valid and has access to the intended DNS zone. Revoke and replace a key if it has been exposed.
 
 **The domain is not visible to the key** — Open [Machine Users](https://panel.arvancloud.ir/profile/iam/machine-users), then review the [IAM access policies](https://docs.arvancloud.ir/fa/accounts/iam/policies/). Grant the key access to the `example.com` DNS zone and to DNS record operations in the same account/workspace. Also confirm that the zone is actually present in that account.
+
+After this check fails, the installer asks for a replacement key in a hidden prompt. Correct the key or its IAM policy, then paste the corrected key; the domain and other options are kept. Press Enter without a key to cancel.
 
 **Certificate issuance fails** — Check ``/var/log/arvancloud-letsencrypt/acme-issue.log``. Inspect the error before sharing it because debug output can contain operational details.
 
