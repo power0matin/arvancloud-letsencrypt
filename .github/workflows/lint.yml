@@ -144,7 +144,7 @@ jobs:
       - name: Lint GitHub Actions workflows
         run: |
           "$RUNNER_TEMP/actionlint" -color
-      - name: Run DNS plugin behavioral tests
-        run: bats tests/dns_arvan.bats
+      - name: Run Bats behavioral tests
+        run: bats tests/dns_arvan.bats tests/core_issuance.bats
       - name: Run ShellCheck
         run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh tests/staging/run-acme-staging.sh
