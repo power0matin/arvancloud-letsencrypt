@@ -119,6 +119,13 @@ jobs:
             echo "Release tag must exactly match core.sh SCRIPT_VERSION ($script_version)." >&2
             exit 1
           }
+          for script in install.sh menu.sh; do
+            component_version="$(sed -n 's/^readonly SCRIPT_VERSION="\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)"$/\1/p' "$script")"
+            [[ "$component_version" == "$script_version" ]] || {
+              echo "Release tag must match $script SCRIPT_VERSION ($component_version)." >&2
+              exit 1
+            }
+          done
 
           main_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
           [[ "$main_sha" == "$GITHUB_SHA" ]] || {
