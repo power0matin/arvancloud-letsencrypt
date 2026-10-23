@@ -9,6 +9,7 @@
 - Improved pagination and response validation when locating zones and removing ACME TXT records.
 - Preserved acme.sh exit-code 2 semantics: when issuance is skipped because a certificate is still valid, reuse is allowed only if the expected certificate file exists.
 - Removed current README references to the example production deployment and personal contact details.
+- Added a SHA-256 checksum manifest to the GitHub release assets.
 
 ## [1.0.0] - 2026-09-08
 
