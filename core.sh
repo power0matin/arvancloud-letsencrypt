@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 set -Eeuo pipefail
 
-readonly SCRIPT_VERSION="1.1.3"
+readonly SCRIPT_VERSION="1.1.4"
 readonly ACME_HOME="/root/.acme.sh"
 readonly ACME_BIN="${ACME_HOME}/acme.sh"
 readonly DNSAPI_PATH="${ACME_HOME}/dnsapi/dns_arvan.sh"
@@ -19,6 +20,7 @@ BACKGROUND="0"
 FORCE="0"
 DEBUG="0"
 WORKER="0"
+AUTH_CONFIG_FILE=""
 
 usage() {
   cat <<'EOF'
@@ -60,6 +62,18 @@ on_error() {
 }
 
 trap 'on_error "$LINENO"' ERR
+
+cleanup_auth_config() {
+  if [[ -n "${AUTH_CONFIG_FILE:-}" ]]; then
+    rm -f -- "$AUTH_CONFIG_FILE" 2>/dev/null || true
+    AUTH_CONFIG_FILE=""
+  fi
+}
+
+trap cleanup_auth_config EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -187,6 +201,7 @@ install_dns_plugin() {
   fi
   install -m 700 /dev/stdin "$DNSAPI_PATH" <<'PLUGIN'
 #!/usr/bin/env sh
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # This file is embedded in core.sh to support one-line installation. Keep both copies aligned.
 
@@ -334,26 +349,25 @@ arvan_auth_header() {
 }
 
 verify_arvan_access() {
-  local result body status domain_found auth_header auth_file
+  local result body status domain_found auth_header
   local page=1 last_page=1
   auth_header="$(arvan_auth_header)"
   auth_header="${auth_header//\\/\\\\}"
   auth_header="${auth_header//\"/\\\"}"
-  auth_file="$(mktemp "/run/.arvancloud-letsencrypt-auth.XXXXXX")"
-  chmod 600 "$auth_file"
-  printf 'header = "Authorization: %s"\nheader = "Accept: application/json"\n' "$auth_header" > "$auth_file"
+  AUTH_CONFIG_FILE="$(mktemp "/run/.arvancloud-letsencrypt-auth.XXXXXX")"
+  chmod 600 "$AUTH_CONFIG_FILE"
+  printf 'header = "Authorization: %s"\nheader = "Accept: application/json"\n' "$auth_header" > "$AUTH_CONFIG_FILE"
 
   while true; do
-    if ! result="$(curl --config "$auth_file" --connect-timeout 10 --max-time 30 -sS -w $'\n%{http_code}' \
-      "${ARVAN_API_URL}/?page=${page}&per_page=100")"; then
-      rm -f "$auth_file"
+    if ! result="$(curl --config "$AUTH_CONFIG_FILE" --connect-timeout 10 --max-time 30 -sS -w $'\n%{http_code}' "${ARVAN_API_URL}/?page=${page}&per_page=100")"; then
+      cleanup_auth_config
       log "Could not connect to the ArvanCloud API."
       return 20
     fi
     status="${result##*$'\n'}"
     body="${result%$'\n'*}"
     if [[ "$status" != "200" ]]; then
-      rm -f "$auth_file"
+      cleanup_auth_config
       log "ArvanCloud API check failed (HTTP ${status})."
       printf '%s\n' "$body" | jq -c '{message: .message}' 2>/dev/null || true
       if [[ "$status" == "401" || "$status" == "403" ]]; then
@@ -362,13 +376,13 @@ verify_arvan_access() {
       return 20
     fi
     if ! printf '%s' "$body" | jq -e '.data | type == "array"' >/dev/null 2>&1; then
-      rm -f "$auth_file"
+      cleanup_auth_config
       log "ArvanCloud returned an unexpected domains response."
       return 20
     fi
     domain_found="$(printf '%s' "$body" | jq -r --arg target "$DOMAIN" 'any(.data[]?; .domain == $target)')"
     if [[ "$domain_found" == "true" ]]; then
-      rm -f "$auth_file"
+      cleanup_auth_config
       log "ArvanCloud API access verified for ${DOMAIN}."
       return 0
     fi
@@ -377,10 +391,11 @@ verify_arvan_access() {
     [[ "$page" -lt "$last_page" ]] || break
     page=$((page + 1))
   done
-  rm -f "$auth_file"
+  cleanup_auth_config
   log "The ArvanCloud key can reach the API but cannot see the requested DNS zone."
   return 11
 }
+
 install_cron_if_missing() {
   if ! crontab -l 2>/dev/null | grep -Eq 'acme\.sh.*--cron'; then
     log "Installing the acme.sh cron job"

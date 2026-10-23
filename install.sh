@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
 set -Eeuo pipefail
 
 readonly RAW_BASE="https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/latest"

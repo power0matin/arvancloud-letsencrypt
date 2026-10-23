@@ -17,7 +17,7 @@
 <p align="center"><a href="./README.fa.md">راهنمای فارسی (HTML، راست‌چین)</a></p>
 
 <p align="center">
-  <a href="#features">Features</a> · <a href="#quick-start">Quick start</a> · <a href="#interactive-menu">Menu</a> · <a href="#non-interactive-usage">CLI</a> · <a href="#troubleshooting">Troubleshooting</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE">License</a>
+  <a href="#features">Features</a> · <a href="#quick-start">Quick start</a> · <a href="#interactive-menu">Menu</a> · <a href="#non-interactive-usage">CLI</a> · <a href="#troubleshooting">Troubleshooting</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE">License</a> · <a href="THIRD_PARTY_NOTICES.md">Third-party notices</a>
 </p>
 
 ## Features
@@ -55,9 +55,9 @@ Review any remote installer before running it with root privileges. The `latest`
 
 The installer and menu load matching components from the moving `latest` branch. The release workflow advances that branch after publishing a release; use a version tag instead of `latest` when you need reproducible, version-pinned installation.
 
-To publish the next version, update `core.sh` and `CHANGELOG.md`, let CI pass, then open **Actions → Publish GitHub Release**. Enter the new semantic version tag (for example, `v1.1.4`) and choose `PUBLISH` in the confirmation field.
+To publish a release, first merge the release candidate into `main` and confirm that CI passes. Then open **Actions → Publish GitHub Release**, select the `main` branch, enter the version that exactly matches `core.sh` and `CHANGELOG.md`, and explicitly choose `PUBLISH`. Pushes to release branches do not publish releases.
 
-Release titles contain **only the version** (for example, `v1.1.3`). The project name and changelog notes belong in the release description. The workflow refuses to publish if the repository is not public, the tag or release already exists, or the matching changelog section is missing.
+Release titles contain **only the version** (for example, `v1.1.3`). The project name and changelog notes belong in the release description. Publishing uses a read-only validation job followed by a separate job with write permissions. It refuses stale source commits, mismatched versions, missing changelog notes, non-public repositories, and existing tags/releases.
 ## Interactive menu
 
 The menu offers:
@@ -154,7 +154,9 @@ All installation modes default to ``/root/cert/DOMAIN/``. After successful insta
 | ``fullchain.pem`` | Leaf certificate plus intermediate chain |
 | ``privkey.pem`` | Private key; mode ``600`` |
 
-With ``--x-ui``, the script also checks that ``x-ui`` is installed and runs ``x-ui restart`` after successful certificate installation. It does not modify x-ui configuration or its database. If you use a custom ``--install-dir``, configure the service to read certificates from that location.
+The installer sets the output directory to mode ``700``, the private key to ``600``, and certificate/chain files to ``644``. These restrictive permissions are intentional. A service whose privileged master process opens the key (as in a standard Nginx deployment) can generally load it; a service that must open files as an unprivileged account may not be able to traverse ``/root`` or read the root-only directory. The ``--install-dir`` option changes the path, not these directory/key modes. Do not make the private key world-readable to work around access failures; use a service-appropriate certificate directory and carefully restricted ownership/permissions, and verify the setup after renewal.
+
+With ``--x-ui``, the script also checks that ``x-ui`` is installed and runs ``x-ui restart`` after successful certificate installation. It does not modify x-ui configuration or its database. If you use a custom ``--install-dir``, configure the service to read certificates from that location and account for the restrictive directory permissions.
 
 ## Credential and log handling
 

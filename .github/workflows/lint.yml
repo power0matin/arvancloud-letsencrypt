@@ -11,7 +11,33 @@ jobs:
   shell-checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Validate release workflow safety
+        run: |
+          set -Eeuo pipefail
+          ruby -e 'require "yaml"; YAML.load_file(".github/workflows/release.yml")'
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          workflow = Path(".github/workflows/release.yml").read_text()
+          lines = workflow.splitlines()
+          assert not re.search(r"(?m)^  push:$", workflow), "Release publishing must not run on branch pushes."
+          assert 'default: "v1.1.4"' in workflow, "Release input default should track the next candidate."
+          assert '[[ "$GITHUB_REF" == "refs/heads/main" ]]' in workflow
+          assert '[[ "$CONFIRMATION" == "PUBLISH" ]]' in workflow
+          validate_index = lines.index("  validate:")
+          publish_index = lines.index("  publish:")
+          assert "      contents: read" in lines[validate_index:publish_index]
+          assert "      contents: write" in lines[publish_index:]
+          actions = re.findall(r"^\s+uses:\s+([^\s]+)", workflow, flags=re.MULTILINE)
+          assert actions, "Expected at least one external action."
+          assert all(re.fullmatch(r"[^@]+@[0-9a-f]{40}", action) for action in actions), actions
+          assert "check_release_absent" in workflow, "Publisher must fail closed when the release/tag state cannot be verified."
+          print("Release workflow syntax and safety invariants passed.")
+          PY
       - name: Check shell syntax
         run: |
           bash -n install.sh

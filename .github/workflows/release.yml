@@ -1,15 +1,12 @@
 name: Publish GitHub Release
 
 on:
-  push:
-    branches:
-      - 'release/v*'
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag (for example v1.1.3)"
+        description: "Release tag (must match core.sh and CHANGELOG.md, for example v1.1.4)"
         required: true
-        default: "v1.1.3"
+        default: "v1.1.4"
         type: string
       confirmation:
         description: "Type PUBLISH to confirm creating a public release"
@@ -21,21 +18,27 @@ on:
           - "PUBLISH"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: publish-release
   cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Validate and publish release
+  validate:
+    name: Validate release candidate
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      release_tag: ${{ steps.validate.outputs.release_tag }}
+      source_sha: ${{ steps.validate.outputs.source_sha }}
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install ShellCheck
         run: |
@@ -86,23 +89,40 @@ jobs:
           print("Embedded plugin and public-file scan passed.")
           PY
 
-      - name: Validate request, changelog, and repository visibility
+      - name: Validate request, source branch, version, and changelog
         id: validate
         env:
           RELEASE_TAG_INPUT: ${{ inputs.tag }}
-          CONFIRMATION: ${{ inputs.confirmation || 'PUBLISH' }}
+          CONFIRMATION: ${{ inputs.confirmation }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
 
-          RELEASE_TAG="${RELEASE_TAG_INPUT:-${GITHUB_REF_NAME#release/}}"
-
+          [[ "$GITHUB_REF" == "refs/heads/main" ]] || {
+            echo "Release workflow must be dispatched from main." >&2
+            exit 1
+          }
           [[ "$CONFIRMATION" == "PUBLISH" ]] || {
             echo "Release cancelled: confirmation was not PUBLISH." >&2
             exit 1
           }
+
+          RELEASE_TAG="$RELEASE_TAG_INPUT"
           [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || {
             echo "Invalid release tag: $RELEASE_TAG" >&2
+            exit 1
+          }
+
+          version="${RELEASE_TAG#v}"
+          script_version="$(sed -n 's/^readonly SCRIPT_VERSION="\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\)"$/\1/p' core.sh)"
+          [[ -n "$script_version" && "$version" == "$script_version" ]] || {
+            echo "Release tag must exactly match core.sh SCRIPT_VERSION ($script_version)." >&2
+            exit 1
+          }
+
+          main_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          [[ "$main_sha" == "$GITHUB_SHA" ]] || {
+            echo "The workflow source is no longer the current main commit; rerun from main." >&2
             exit 1
           }
 
@@ -112,10 +132,9 @@ jobs:
             exit 1
           }
 
-          version="${RELEASE_TAG#v}"
           header="## [${version}]"
           notes="$(awk -v header="$header" '
-            index($0, header) == 1 && substr($0, length(header) + 1, 3) == " - " {
+            $0 == header || index($0, header " - ") == 1 {
               found = 1
               next
             }
@@ -128,49 +147,149 @@ jobs:
             exit 1
           }
 
-          if git ls-remote --exit-code --tags origin "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
-            echo "Tag already exists: $RELEASE_TAG" >&2
-            exit 1
-          fi
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            echo "Release already exists: $RELEASE_TAG" >&2
-            exit 1
-          fi
+          check_release_absent() {
+            local tag="$1" tag_status release_status
+            if ! tag_status="$(curl --connect-timeout 10 --max-time 30 -sS -o /dev/null -w '%{http_code}' \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/git/ref/tags/$tag")"; then
+              echo "Could not verify whether tag $tag exists." >&2
+              exit 1
+            fi
+            case "$tag_status" in
+              200) echo "Tag already exists: $tag" >&2; exit 1 ;;
+              404) ;;
+              *) echo "Could not verify tag $tag (HTTP $tag_status)." >&2; exit 1 ;;
+            esac
 
+            if ! release_status="$(curl --connect-timeout 10 --max-time 30 -sS -o /dev/null -w '%{http_code}' \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$tag")"; then
+              echo "Could not verify whether release $tag exists." >&2
+              exit 1
+            fi
+            case "$release_status" in
+              200) echo "Release already exists: $tag" >&2; exit 1 ;;
+              404) ;;
+              *) echo "Could not verify release $tag (HTTP $release_status)." >&2; exit 1 ;;
+            esac
+          }
+          check_release_absent "$RELEASE_TAG"
+
+          echo "release_tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          echo "source_sha=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+          echo "Read-only release validation passed for $RELEASE_TAG at $GITHUB_SHA."
+
+  publish:
+    name: Publish validated release
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out validated source commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.validate.outputs.source_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Recheck publication guard
+        env:
+          RELEASE_TAG: ${{ needs.validate.outputs.release_tag }}
+          SOURCE_SHA: ${{ needs.validate.outputs.source_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          [[ "$GITHUB_SHA" == "$SOURCE_SHA" ]] || {
+            echo "Checked-out source does not match the validated commit." >&2
+            exit 1
+          }
+          main_sha="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          [[ "$main_sha" == "$SOURCE_SHA" ]] || {
+            echo "main changed after validation; refusing to publish from a stale commit." >&2
+            exit 1
+          }
+          check_release_absent() {
+            local tag="$1" tag_status release_status
+            if ! tag_status="$(curl --connect-timeout 10 --max-time 30 -sS -o /dev/null -w '%{http_code}' \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/git/ref/tags/$tag")"; then
+              echo "Could not verify whether tag $tag exists." >&2
+              exit 1
+            fi
+            case "$tag_status" in
+              200) echo "Tag already exists: $tag" >&2; exit 1 ;;
+              404) ;;
+              *) echo "Could not verify tag $tag (HTTP $tag_status)." >&2; exit 1 ;;
+            esac
+
+            if ! release_status="$(curl --connect-timeout 10 --max-time 30 -sS -o /dev/null -w '%{http_code}' \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/tags/$tag")"; then
+              echo "Could not verify whether release $tag exists." >&2
+              exit 1
+            fi
+            case "$release_status" in
+              200) echo "Release already exists: $tag" >&2; exit 1 ;;
+              404) ;;
+              *) echo "Could not verify release $tag (HTTP $release_status)." >&2; exit 1 ;;
+            esac
+          }
+          check_release_absent "$RELEASE_TAG"
+
+      - name: Prepare release notes and checksum manifest
+        env:
+          RELEASE_TAG: ${{ needs.validate.outputs.release_tag }}
+        run: |
+          set -Eeuo pipefail
+          version="${RELEASE_TAG#v}"
+          header="## [${version}]"
+          notes="$(awk -v header="$header" '
+            $0 == header || index($0, header " - ") == 1 {
+              found = 1
+              next
+            }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md)"
+          [[ -n "${notes//[[:space:]]/}" ]] || {
+            echo "Release notes are missing for $RELEASE_TAG." >&2
+            exit 1
+          }
           {
             printf '%s\n\n' "ArvanCloud Let's Encrypt"
             printf '%s\n' "$notes"
           } > "$RUNNER_TEMP/release-notes.md"
-          echo "release_tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
-          echo "Release validation passed for $RELEASE_TAG."
-
-      - name: Generate SHA-256 manifest
-        run: |
-          set -Eeuo pipefail
           sha256sum install.sh menu.sh core.sh src/dns_arvan.sh > "$RUNNER_TEMP/SHA256SUMS"
 
       - name: Create public release
         env:
-          RELEASE_TAG: ${{ steps.validate.outputs.release_tag }}
+          RELEASE_TAG: ${{ needs.validate.outputs.release_tag }}
+          SOURCE_SHA: ${{ needs.validate.outputs.source_sha }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
           gh release create "$RELEASE_TAG" \
-            --target "$GITHUB_SHA" \
+            --target "$SOURCE_SHA" \
             --title "$RELEASE_TAG" \
             --notes-file "$RUNNER_TEMP/release-notes.md" \
             "$RUNNER_TEMP/SHA256SUMS"
 
       - name: Update latest installation channel
         env:
+          SOURCE_SHA: ${{ needs.validate.outputs.source_sha }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -Eeuo pipefail
           if gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/latest" >/dev/null 2>&1; then
             gh api --method PATCH "repos/$GITHUB_REPOSITORY/git/refs/heads/latest" \
-              -f sha="$GITHUB_SHA" -F force=true >/dev/null
+              -f sha="$SOURCE_SHA" -F force=true >/dev/null
           else
             gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" \
-              -f ref="refs/heads/latest" -f sha="$GITHUB_SHA" >/dev/null
+              -f ref="refs/heads/latest" -f sha="$SOURCE_SHA" >/dev/null
           fi
-          echo "The latest installation channel now points to $GITHUB_SHA."
+          echo "The latest installation channel now points to $SOURCE_SHA."

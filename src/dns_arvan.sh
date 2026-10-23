@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# SPDX-License-Identifier: GPL-3.0-or-later
 
 # This file is embedded in core.sh to support one-line installation. Keep both copies aligned.
 

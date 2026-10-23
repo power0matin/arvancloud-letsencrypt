@@ -106,7 +106,8 @@ sudo bash install.sh --help</code></pre>
 <tr><td><code>fullchain.pem</code></td><td>گواهی اصلی به‌همراه زنجیره</td></tr>
 <tr><td><code>privkey.pem</code></td><td>کلید خصوصی؛ دسترسی فایل 600</td></tr>
 </tbody></table>
-<p dir="rtl" align="right">گزینهٔ <code dir="ltr">--x-ui</code> بررسی می‌کند x-ui نصب باشد و پس از نصب موفق دستور <code dir="ltr">x-ui restart</code> را اجرا می‌کند. این گزینه تنظیمات یا پایگاه دادهٔ x-ui را تغییر نمی‌دهد. در صورت استفاده از <code dir="ltr">--install-dir</code> سفارشی، سرویس را برای استفاده از همان مسیر تنظیم کنید.</p>
+<p dir="rtl" align="right">نصب‌کننده سطح دسترسی پوشهٔ خروجی را <code dir="ltr">700</code>، کلید خصوصی را <code dir="ltr">600</code> و فایل‌های گواهی را <code dir="ltr">644</code> تنظیم می‌کند. این محدودیت عمدی است. سرویس‌هایی که فرایند اصلیِ دارای دسترسی ریشه کلید را باز می‌کند، مانند نصب معمول Nginx، معمولاً می‌توانند گواهی را بخوانند؛ اما سرویسی که باید فایل را با حساب غیر root باز کند ممکن است به پوشهٔ زیر <code dir="ltr">/root</code> دسترسی نداشته باشد. گزینهٔ <code dir="ltr">--install-dir</code> فقط مسیر را تغییر می‌دهد و این مجوزهای محدودکننده را بازتر نمی‌کند. برای رفع مشکل، کلید خصوصی را برای همه قابل‌خواندن نکنید؛ از پوشه و مالکیت/مجوزهای محدود و متناسب با همان سرویس استفاده کنید و دسترسی را پس از تمدید نیز بررسی کنید.</p>
+<p dir="rtl" align="right">گزینهٔ <code dir="ltr">--x-ui</code> بررسی می‌کند x-ui نصب باشد و پس از نصب موفق دستور <code dir="ltr">x-ui restart</code> را اجرا می‌کند. این گزینه تنظیمات یا پایگاه دادهٔ x-ui را تغییر نمی‌دهد. در صورت استفاده از <code dir="ltr">--install-dir</code> سفارشی، سرویس را برای استفاده از همان مسیر تنظیم کنید و محدودیت دسترسی پوشه را نیز در نظر بگیرید.</p>
 
 <h2 dir="rtl" align="right">تمدید، امنیت و لاگ‌ها</h2>
 <p dir="rtl" align="right">گواهی در <code dir="ltr">acme.sh</code> ثبت می‌شود و وظیفهٔ تمدید زمان‌بندی‌شده بررسی می‌شود. برای بررسی وضعیت، از گزینه‌های <code dir="ltr">--list</code> و <code dir="ltr">--info</code> استفاده کنید. اگر زمان تمدید نرسیده باشد، بررسی عادی ممکن است سفارش جدیدی ایجاد نکند؛ این رفتار به‌تنهایی نشانهٔ خرابی نصب نیست.</p>
@@ -133,7 +134,7 @@ bash -n menu.sh
 bash -n core.sh
 sh -n src/dns_arvan.sh
 shellcheck install.sh menu.sh core.sh src/dns_arvan.sh</code></pre>
-<p dir="rtl" align="right">نسخه‌های منتشرشده در صفحهٔ <a href="https://github.com/power0matin/arvancloud-letsencrypt/releases">Releases</a> قرار دارند. عنوان Release فقط شمارهٔ نسخه است؛ نام پروژه و توضیحات تغییرات در بدنهٔ Release می‌آیند. مجوز پروژه <span dir="ltr">GPL-3.0-or-later</span> است؛ متن کامل در <a href="./LICENSE">LICENSE</a> قرار دارد.</p>
+<p dir="rtl" align="right">نسخه‌های منتشرشده در صفحهٔ <a href="https://github.com/power0matin/arvancloud-letsencrypt/releases">Releases</a> قرار دارند. عنوان Release فقط شمارهٔ نسخه است؛ نام پروژه و توضیحات تغییرات در بدنهٔ Release می‌آیند. مجوز پروژه <span dir="ltr">GPL-3.0-or-later</span> است؛ متن کامل در <a href="./LICENSE">LICENSE</a> قرار دارد. منشأ افزونهٔ DNS نیز در <a href="./THIRD_PARTY_NOTICES.md">اعلان‌های اجزای ثالث</a> توضیح داده شده است.</p>
 
 <h2 dir="rtl" align="right">تماس و پشتیبانی</h2>
 <ul dir="rtl" align="right">
