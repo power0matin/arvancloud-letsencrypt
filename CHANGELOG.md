@@ -14,8 +14,6 @@
 
 ## [1.1.1] - 2026-10-23
 
-## [1.1.1] - 2026-10-23
-
 - Clear the terminal before displaying the interactive menu and after returning from an action.
 - Retry ArvanCloud API-key verification in place after HTTP 401/403 or when the selected DNS zone is not visible, without asking the user to re-enter the domain and certificate options.
 - Read the initial and replacement API keys through a hidden prompt attached directly to the terminal.

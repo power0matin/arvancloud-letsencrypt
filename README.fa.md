@@ -35,7 +35,7 @@
 <pre dir="ltr" align="left"><code>curl -fsSLo install.sh https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/latest/install.sh
 less install.sh
 bash install.sh</code></pre>
-<p dir="rtl" align="right">شاخهٔ <code dir="ltr">latest</code> کانال متحرک نصب است. برای نصب نسخهٔ ثابت، به‌جای آن از تگ انتشار استفاده کنید؛ مثلاً <code dir="ltr">v1.1.1</code>.</p>
+<p dir="rtl" align="right">شاخهٔ <code dir="ltr">latest</code> کانال متحرک نصب است. برای نصب نسخهٔ ثابت، به‌جای آن از تگ انتشار استفاده کنید؛ مثلاً <code dir="ltr">v1.1.2</code>.</p>
 
 <h2 dir="rtl" align="right">پیش‌نیازها</h2>
 <ul dir="rtl" align="right">

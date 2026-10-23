@@ -49,7 +49,7 @@ less install.sh
 bash install.sh
 ```
 
-Review any remote installer before running it with root privileges. The `latest` branch is the moving installation channel; after a successful release, the release workflow advances it to the published source commit. For a fixed version, replace `latest` with a version tag such as `v1.1.1`.
+Review any remote installer before running it with root privileges. The `latest` branch is the moving installation channel; after a successful release, the release workflow advances it to the published source commit. For a fixed version, replace `latest` with a version tag such as `v1.1.2`.
 
 ## Release
 
