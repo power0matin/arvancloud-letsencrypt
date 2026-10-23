@@ -2,6 +2,19 @@
 
 <h1 dir="rtl" align="right">راهنمای فارسی ساخت کلید API آروان‌کلاد</h1>
 
+<div dir="ltr" align="center">
+<!-- repo-badges:start -->
+<p align="center">
+  <a href="https://hits.sh/github.com/power0matin/arvancloud-letsencrypt/"><img src="https://hits.sh/github.com/power0matin/arvancloud-letsencrypt.svg?style=flat-square&amp;label=Views&amp;labelColor=18181B&amp;color=0EA5E9&amp;logo=github" alt="Repository Views"/></a>
+  <a href="https://github.com/power0matin/arvancloud-letsencrypt/stargazers"><img src="https://img.shields.io/github/stars/power0matin/arvancloud-letsencrypt?style=flat-square&amp;label=Stars&amp;labelColor=18181B&amp;color=F59E0B&amp;logo=github&amp;logoColor=white" alt="GitHub Stars"/></a>
+  <a href="https://github.com/power0matin/arvancloud-letsencrypt/forks"><img src="https://img.shields.io/github/forks/power0matin/arvancloud-letsencrypt?style=flat-square&amp;label=Forks&amp;labelColor=18181B&amp;color=6366F1&amp;logo=github&amp;logoColor=white" alt="GitHub Forks"/></a>
+  <a href="https://github.com/power0matin/arvancloud-letsencrypt/issues"><img src="https://img.shields.io/github/issues/power0matin/arvancloud-letsencrypt?style=flat-square&amp;label=Issues&amp;labelColor=18181B&amp;color=22C55E&amp;logo=github&amp;logoColor=white" alt="GitHub Issues"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/power0matin/arvancloud-letsencrypt?style=flat-square&amp;label=License&amp;labelColor=18181B&amp;color=EF4444&amp;logo=github&amp;logoColor=white" alt="GitHub License"/></a>
+  <a href="https://github.com/power0matin/arvancloud-letsencrypt/actions/workflows/lint.yml"><img src="https://github.com/power0matin/arvancloud-letsencrypt/actions/workflows/lint.yml/badge.svg?branch=main" alt="Shell checks"/></a>
+</p>
+<!-- repo-badges:end -->
+</div>
+
 <p dir="rtl" align="right">این راهنما برای تنظیم دسترسی لازم جهت صدور گواهی <span dir="ltr">Let's Encrypt</span> از طریق <span dir="ltr">DNS-01</span> است.</p>
 
 <h2 dir="rtl" align="right">پیوندهای رسمی و مستقیم</h2>
@@ -59,5 +72,36 @@
 
 <p dir="rtl" align="right">مخزن پروژه: <a href="https://github.com/power0matin/arvancloud-letsencrypt">ArvanCloud Let's Encrypt در GitHub</a></p>
 <p dir="rtl" align="right"><a href="./README.md">بازگشت به README انگلیسی</a></p>
+
+
+<hr>
+<h2 dir="rtl" align="right">تماس</h2>
+<p dir="rtl" align="right"><strong><span dir="ltr">Matin Shahabadi</span></strong></p>
+<ul dir="rtl" align="right">
+  <li>وب‌سایت: <a href="https://matinshahabadi.ir"><span dir="ltr">matinshahabadi.ir</span></a></li>
+  <li>ایمیل: <a href="mailto:me@matinshahabadi.ir"><span dir="ltr">me@matinshahabadi.ir</span></a></li>
+  <li>گیت‌هاب: <a href="https://github.com/power0matin"><span dir="ltr">power0matin</span></a></li>
+  <li>لینکدین: <a href="https://www.linkedin.com/in/matin-shahabadi"><span dir="ltr">matin-shahabadi</span></a></li>
+</ul>
+
+<p dir="rtl" align="center">
+  <b>اگر این پروژه برایتان مفید بود، با دادن ستاره از آن حمایت کنید!</b><br>
+  <sub>حمایت شما به ادامهٔ توسعهٔ پروژه کمک می‌کند و باعث می‌شود دیگران راحت‌تر آن را پیدا کنند.</sub>
+</p>
+
+<div dir="ltr" align="center">
+<!-- Star history widget -->
+<p align="center">
+  <a href="https://next.ossinsight.io/widgets/official/analyze-repo-stars-history?repo_id=1361637812" target="_blank" style="display: block" align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://next.ossinsight.io/widgets/official/analyze-repo-stars-history/thumbnail.png?repo_id=1361637812&amp;image_size=auto&amp;color_scheme=dark" width="721" height="auto">
+      <img alt="تاریخچه ستاره‌های مخزن power0matin/arvancloud-letsencrypt" src="https://next.ossinsight.io/widgets/official/analyze-repo-stars-history/thumbnail.png?repo_id=1361637812&amp;image_size=auto&amp;color_scheme=light" width="721" height="auto">
+    </picture>
+  </a>
+</p>
+<!-- Made with [OSS Insight](https://ossinsight.io/) -->
+</div>
+
+<p dir="rtl" align="center">ساخته‌شده توسط <a href="https://github.com/power0matin"><span dir="ltr">power0matin</span></a></p>
 
 </div>
