@@ -2,12 +2,43 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 set -Eeuo pipefail
 
-readonly RAW_BASE="https://raw.githubusercontent.com/power0matin/arvancloud-letsencrypt/latest"
+readonly REPOSITORY="power0matin/arvancloud-letsencrypt"
+readonly SCRIPT_VERSION="1.1.4"
+readonly RELEASE_TAG="v${SCRIPT_VERSION}"
+readonly RAW_BASE="https://raw.githubusercontent.com/${REPOSITORY}/${RELEASE_TAG}"
+readonly RELEASE_BASE="https://github.com/${REPOSITORY}/releases/download/${RELEASE_TAG}"
 readonly MENU_URL="${RAW_BASE}/menu.sh"
 readonly CORE_URL="${RAW_BASE}/core.sh"
 readonly ACME_HOME="/root/.acme.sh"
 readonly ACME_BIN="${ACME_HOME}/acme.sh"
 readonly LOG_DIR="/var/log/arvancloud-letsencrypt"
+TMP_DIR=""
+
+cleanup_downloads() {
+  if [[ -n "${TMP_DIR:-}" && -d "$TMP_DIR" ]]; then
+    rm -rf -- "$TMP_DIR"
+  fi
+}
+trap cleanup_downloads EXIT
+
+prepare_release_downloads() {
+  [[ -n "$TMP_DIR" ]] && return 0
+  TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/arvancloud-letsencrypt.XXXXXX")" || die "Could not create a temporary download directory."
+  curl -fsSLo "$TMP_DIR/SHA256SUMS" "${RELEASE_BASE}/SHA256SUMS" || die "Could not download the checksum manifest for ${RELEASE_TAG}. Is that release published?"
+}
+
+download_verified_component() {
+  local relative_path="$1" destination check_file check_count
+  prepare_release_downloads
+  destination="$TMP_DIR/$relative_path"
+  mkdir -p "$(dirname "$destination")"
+  curl -fsSLo "$destination" "${RAW_BASE}/${relative_path}" || die "Could not download ${relative_path} from ${RELEASE_TAG}."
+  check_file="SHA256SUMS.${relative_path//\//_}"
+  awk -v expected="$relative_path" '$2 == expected { print }' "$TMP_DIR/SHA256SUMS" > "$TMP_DIR/$check_file"
+  check_count="$(wc -l < "$TMP_DIR/$check_file")"
+  [[ "$check_count" == "1" ]] || die "The checksum manifest does not contain exactly one entry for ${relative_path}."
+  (cd "$TMP_DIR" && sha256sum --check --status "$check_file") || die "Checksum verification failed for ${relative_path}."
+}
 
 if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
   C_RESET=$'\033[0m'; C_CYAN=$'\033[36m'; C_GREEN=$'\033[32m'; C_RED=$'\033[31m'
@@ -125,7 +156,8 @@ if [[ "$#" -eq 0 || "$1" == "--menu" ]]; then
   [[ "$#" -eq 0 || "$#" -eq 1 ]] || die "--menu does not accept additional arguments."
   require_root
   [[ -r /dev/tty && -w /dev/tty ]] || die "An interactive terminal is required. Use --help for CLI usage."
-  curl -fsSL "$MENU_URL" | bash
+  download_verified_component "menu.sh"
+  bash "$TMP_DIR/menu.sh"
   exit $?
 fi
 
@@ -139,4 +171,5 @@ case "$1" in
 esac
 
 require_root
-curl -fsSL "$CORE_URL" | bash -s -- "$@"
+download_verified_component "core.sh"
+bash "$TMP_DIR/core.sh" "$@"
