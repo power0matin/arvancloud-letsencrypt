@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1] - 2026-10-23
+
+- Clear the terminal before displaying the interactive menu and after returning from an action.
+- Retry ArvanCloud API-key verification in place after HTTP 401/403 or when the selected DNS zone is not visible, without asking the user to re-enter the domain and certificate options.
+- Read the initial and replacement API keys through a hidden prompt attached directly to the terminal.
+- Pin the installer and menu to the versioned `v1.1.1` release.
+
 ## [1.1.0] - 2026-10-23
 
 - Added an interactive terminal menu for common certificate-management tasks.
