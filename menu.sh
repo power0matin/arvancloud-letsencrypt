@@ -3,7 +3,10 @@
 set -Eeuo pipefail
 
 readonly REPOSITORY="power0matin/arvancloud-letsencrypt"
-readonly RAW_BASE="https://raw.githubusercontent.com/${REPOSITORY}/latest"
+readonly SCRIPT_VERSION="1.1.4"
+readonly RELEASE_TAG="v${SCRIPT_VERSION}"
+readonly RAW_BASE="https://raw.githubusercontent.com/${REPOSITORY}/${RELEASE_TAG}"
+readonly RELEASE_BASE="https://github.com/${REPOSITORY}/releases/download/${RELEASE_TAG}"
 readonly INSTALL_URL="${RAW_BASE}/install.sh"
 readonly ACME_HOME="/root/.acme.sh"
 readonly ACME_BIN="${ACME_HOME}/acme.sh"
@@ -45,6 +48,42 @@ pause_menu() {
   IFS= read -r _unused < /dev/tty || true
 }
 
+run_verified_installer() {
+  local temporary_directory checksum_file checksum_count command_status
+  if ! temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/arvancloud-letsencrypt.XXXXXX")"; then
+    warn "Could not create a temporary download directory."
+    return 1
+  fi
+
+  if ! curl -fsSLo "$temporary_directory/SHA256SUMS" "${RELEASE_BASE}/SHA256SUMS"; then
+    rm -rf -- "$temporary_directory"
+    warn "Could not download the checksum manifest for ${RELEASE_TAG}."
+    return 1
+  fi
+  if ! curl -fsSLo "$temporary_directory/install.sh" "$INSTALL_URL"; then
+    rm -rf -- "$temporary_directory"
+    warn "Could not download install.sh from ${RELEASE_TAG}."
+    return 1
+  fi
+
+  checksum_file="SHA256SUMS.install.sh"
+  awk -v expected="install.sh" '$2 == expected { print }' "$temporary_directory/SHA256SUMS" > "$temporary_directory/$checksum_file"
+  checksum_count="$(wc -l < "$temporary_directory/$checksum_file")"
+  if [[ "$checksum_count" != "1" ]] || ! (cd "$temporary_directory" && sha256sum --check --status "$checksum_file"); then
+    rm -rf -- "$temporary_directory"
+    warn "Checksum verification failed for install.sh."
+    return 1
+  fi
+
+  if bash "$temporary_directory/install.sh" "$@"; then
+    command_status=0
+  else
+    command_status=$?
+  fi
+  rm -rf -- "$temporary_directory"
+  return "$command_status"
+}
+
 show_banner() {
   printf '\n%s%s  ARVANCLOUD / LET'\''S ENCRYPT%s\n' "$C_BOLD" "$C_CYAN" "$C_RESET"
   printf '%s  Wildcard certificate manager%s\n\n' "$C_DIM" "$C_RESET"
@@ -77,7 +116,7 @@ issue_flow() {
   if [[ "$answer" =~ ^[Yy]$ ]]; then args+=(--force); fi
 
   printf '\nThe installer will ask for the ArvanCloud access key in a hidden prompt.\n\n'
-  if ! curl -fsSL "$INSTALL_URL" | bash -s -- "${args[@]}"; then
+  if ! run_verified_installer "${args[@]}"; then
     warn "The install command failed. Check the output and network connection."
   fi
 }

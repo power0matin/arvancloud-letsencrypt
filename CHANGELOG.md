@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Resolve companion scripts from the same immutable release tag and verify downloaded components against that release's SHA-256 manifest before execution.
+
 - Add Bats-based mocked tests for ArvanCloud zone discovery, TXT creation and cleanup, malformed responses, credential absence, and API failures.
 - Retry transient DNS API GET transport failures and HTTP 429/5xx responses at most three times with bounded backoff; do not retry authorization failures or repeat DNS mutations.
 

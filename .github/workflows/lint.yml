@@ -14,6 +14,34 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+      - name: Validate version-pinned installer components
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          paths = ["install.sh", "menu.sh", "core.sh"]
+          versions = {}
+          for name in paths:
+              content = Path(name).read_text()
+              match = re.search(r'^readonly SCRIPT_VERSION="([0-9]+\.[0-9]+\.[0-9]+)"$', content, re.MULTILINE)
+              if not match:
+                  raise SystemExit(f"{name} must declare SCRIPT_VERSION.")
+              versions[name] = match.group(1)
+          if len(set(versions.values())) != 1:
+              raise SystemExit(f"Installer/menu/core versions differ: {versions}")
+          for name in ["install.sh", "menu.sh"]:
+              content = Path(name).read_text()
+              if 'readonly RELEASE_TAG="v${SCRIPT_VERSION}"' not in content:
+                  raise SystemExit(f"{name} must resolve components through its immutable version tag.")
+              if 'readonly RELEASE_BASE="https://github.com/${REPOSITORY}/releases/download/${RELEASE_TAG}"' not in content:
+                  raise SystemExit(f"{name} must build release URLs from its immutable version tag.")
+              if '"${RELEASE_BASE}/SHA256SUMS"' not in content:
+                  raise SystemExit(f"{name} must download the checksum manifest for its pinned release.")
+              if "sha256sum --check --status" not in content:
+                  raise SystemExit(f"{name} must verify checksums before running downloaded code.")
+          print(f"Version-pinned installer components agree on v{versions['core.sh']}.")
+          PY
       - name: Validate release workflow safety
         run: |
           set -Eeuo pipefail
