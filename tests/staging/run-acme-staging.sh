@@ -54,7 +54,7 @@ printf '\n' > /dev/tty
 export Arvan_Token
 
 printf '\nRunning ACME staging issuance for %s and *.%s.\n' "$DOMAIN" "$DOMAIN"
-printf 'No --install-cert step will run; production certificate paths are not used.\n\n'
+printf 'No certificate deployment step will run; production certificate paths are not used.\n\n'
 if "$STAGING_HOME/acme.sh" \
   --home "$STAGING_HOME" \
   --config-home "$STAGING_HOME/config" \
