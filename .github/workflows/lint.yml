@@ -91,7 +91,8 @@ jobs:
           tar -xzf "$archive" -C "$RUNNER_TEMP" actionlint
           "$RUNNER_TEMP/actionlint" -version
       - name: Lint GitHub Actions workflows
-        run: "$RUNNER_TEMP/actionlint" -color
+        run: |
+          "$RUNNER_TEMP/actionlint" -color
       - name: Run DNS plugin behavioral tests
         run: bats tests/dns_arvan.bats
       - name: Run ShellCheck
