@@ -78,10 +78,10 @@ Use an **ArvanCloud Machine User API key** and explicitly grant it access to the
 1. Sign in to the ArvanCloud panel, open **Settings → IAM → Machine Users**, and create a Machine User.
 2. Copy the generated API key and store it securely. ArvanCloud only shows the key when it is created; it cannot be retrieved later.
 3. Open **Settings → IAM → Access Policies** (or the resource-access management page). Add the Machine User to an access policy on the workspace or the relevant resource, then assign a role that allows it to view the intended CDN/DNS zone and manage DNS records.
-4. Make sure the policy covers the zone `hypersentry.ir` in the **same ArvanCloud account/workspace** as the key. The tool needs to discover the zone and create, list, and delete the ACME `TXT` record. Prefer the narrowest resource-level permissions available; do not grant broad administrator access unless your own policy requires it.
+4. Make sure the policy covers the zone `example.com` in the **same ArvanCloud account/workspace** as the key. The tool needs to discover the zone and create, list, and delete the ACME `TXT` record. Prefer the narrowest resource-level permissions available; do not grant broad administrator access unless your own policy requires it.
 5. Run the installer again and enter the complete API key at the hidden prompt. The prompt accepts either the raw key or the complete `Apikey ...` value.
 
-If the key still cannot see the zone, confirm that `hypersentry.ir` has been added to ArvanCloud DNS in that same account and that the access policy has been saved and applied. The installer intentionally does not print or save the account's full zone list.
+If the key still cannot see the zone, confirm that `example.com` has been added to ArvanCloud DNS in that same account and that the access policy has been saved and applied. The installer intentionally does not print or save the account's full zone list.
 
 - Outbound HTTPS access to ArvanCloud and the ACME certificate authority.
 
@@ -169,7 +169,7 @@ A normal renewal check can skip a certificate whose renewal window has not start
 
 **HTTP 401 / unauthenticated** — Confirm the key is valid and has access to the intended DNS zone. Revoke and replace a key if it has been exposed.
 
-**The domain is not visible to the key** — Open [Machine Users](https://panel.arvancloud.ir/profile/iam/machine-users), then review the [IAM access policies](https://docs.arvancloud.ir/fa/accounts/iam/policies/). Grant the key access to the `hypersentry.ir` DNS zone and to DNS record operations in the same account/workspace. Also confirm that the zone is actually present in that account.
+**The domain is not visible to the key** — Open [Machine Users](https://panel.arvancloud.ir/profile/iam/machine-users), then review the [IAM access policies](https://docs.arvancloud.ir/fa/accounts/iam/policies/). Grant the key access to the `example.com` DNS zone and to DNS record operations in the same account/workspace. Also confirm that the zone is actually present in that account.
 
 **Certificate issuance fails** — Check ``/var/log/arvancloud-letsencrypt/acme-issue.log``. Inspect the error before sharing it because debug output can contain operational details.
 
