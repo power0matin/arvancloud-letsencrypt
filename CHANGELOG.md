@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Run the full behavioral suite on Ubuntu 22.04 and 24.04 LTS; document that Debian is a target environment but is not yet in hosted CI.
+- Update the roadmap to record 50 mocked Bats cases and the remaining manual staging, Debian CI, and detached-worker release gates.
+
 - Add a manual ACME staging runner that isolates the ACME account/configuration and certificate output, hides the ArvanCloud key prompt, and never deploys a staging certificate to production paths.
 
 - Resolve companion scripts from the same immutable release tag and verify downloaded components against that release's SHA-256 manifest before execution.
