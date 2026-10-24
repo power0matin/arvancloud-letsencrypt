@@ -145,6 +145,6 @@ jobs:
         run: |
           "$RUNNER_TEMP/actionlint" -color
       - name: Run Bats behavioral tests
-        run: bats tests/dns_arvan.bats tests/core_issuance_recovery.bats
+        run: bats tests/dns_arvan.bats tests/core_auth_validation.bats tests/core_issuance_recovery.bats
       - name: Run ShellCheck
         run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh tests/staging/run-acme-staging.sh
