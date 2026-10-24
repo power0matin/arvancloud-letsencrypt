@@ -158,7 +158,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: [debian:bookworm-slim, debian:trixie-slim]
+        image: ["debian:bookworm-slim", "debian:trixie-slim"]
     container:
       image: ${{ matrix.image }}
     steps:
