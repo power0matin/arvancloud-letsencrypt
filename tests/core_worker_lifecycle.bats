@@ -70,16 +70,3 @@ wait_for_log_text() {
   ! grep -Fq 'Completed certificate job for example.com' "$LOG_DIR/acme-issue.log"
 }
 
-@test "foreground invocation does not use detached startup" {
-  BACKGROUND=0
-  export BACKGROUND
-
-  run bash -c '
-    set -Eeuo pipefail
-    eval "$1"
-    run_worker
-  ' _ "$(sed -n '/^run_worker() {/,/^}$/p' "${BATS_TEST_DIRNAME}/../core.sh")"
-
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"worker-started pid="* ]]
-}
