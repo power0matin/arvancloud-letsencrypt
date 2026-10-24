@@ -79,7 +79,7 @@ The menu reads user input from `/dev/tty`, so it works when the installer is pip
 
 ## Optional ACME staging test
 
-To validate ArvanCloud DNS-01 with a dedicated test subdomain without replacing service certificates, see the [manual ACME staging test](tests/staging/README.md). It uses a separate temporary acme.sh home and the Let's Encrypt staging CA; it does not deploy the resulting staging certificate.
+To validate ArvanCloud DNS-01 with a dedicated test subdomain without replacing service certificates, see the [manual ACME staging test](tests/staging/README.md). It uses a separate temporary acme.sh home and the Let's Encrypt staging CA; it does not deploy the resulting staging certificate. A manual GitHub Actions workflow is also available after configuring the `ARVAN_STAGING_DOMAIN` and `ARVAN_STAGING_API_KEY` repository secrets; see the staging guide for the exact setup and confirmation steps.
 
 ## ArvanCloud API key setup
 
