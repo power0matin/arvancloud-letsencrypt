@@ -73,7 +73,7 @@ The menu reads user input from `/dev/tty`, so it works when the installer is pip
 
 ## Requirements
 
-- Target platforms: Debian 12/13 and Ubuntu 22.04/24.04 LTS with root access. Hosted CI currently validates Ubuntu 22.04 and 24.04; Debian is a target environment but is not yet part of the hosted CI matrix.
+- Target platforms: Debian 12 (Bookworm), Debian 13 (Trixie), and Ubuntu 22.04/24.04 LTS with root access. CI runs shell syntax, Bats behavior tests, and ShellCheck on both Debian releases; the Ubuntu matrix additionally runs actionlint and the workflow safety/parity checks.
 - A domain whose authoritative DNS is managed by ArvanCloud.
 - An ArvanCloud access key with permission to list the intended zone and create, list, and delete DNS records.
 
