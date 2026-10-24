@@ -1,7 +1,10 @@
 #!/usr/bin/env bats
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+source "${BATS_TEST_DIRNAME}/test_helper.bash"
+
 setup() {
+  ensure_test_tmpdir
   eval "$(sed -n '/^issue_and_install() {/,/^}$/p' "${BATS_TEST_DIRNAME}/../core.sh")"
 
   export MOCK_LOG="${BATS_TEST_TMPDIR}/acme.log"

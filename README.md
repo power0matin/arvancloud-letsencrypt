@@ -73,7 +73,7 @@ The menu reads user input from `/dev/tty`, so it works when the installer is pip
 
 ## Requirements
 
-- Debian or Ubuntu with root access.
+- Target platforms: Debian 12/13 and Ubuntu 22.04/24.04 LTS with root access. Hosted CI currently validates Ubuntu 22.04 and 24.04; Debian is a target environment but is not yet part of the hosted CI matrix.
 - A domain whose authoritative DNS is managed by ArvanCloud.
 - An ArvanCloud access key with permission to list the intended zone and create, list, and delete DNS records.
 
@@ -205,7 +205,7 @@ bash -n menu.sh
 bash -n core.sh
 sh -n src/dns_arvan.sh
 shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
-bats tests/dns_arvan.bats
+bats tests/*.bats
 ```
 
 Use a dedicated test zone and a separate least-privilege key. Never test changes against a production DNS zone.

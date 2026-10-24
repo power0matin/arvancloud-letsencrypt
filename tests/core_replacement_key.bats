@@ -1,7 +1,10 @@
 #!/usr/bin/env bats
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+source "${BATS_TEST_DIRNAME}/test_helper.bash"
+
 setup() {
+  ensure_test_tmpdir
   local source_file="${BATS_TEST_DIRNAME}/../core.sh"
   eval "$(sed -n '/^read_replacement_key() {/,/^}$/p' "$source_file")"
   eval "$(sed -n '/^verify_arvan_access_with_replacement_key() {/,/^}$/p' "$source_file")"

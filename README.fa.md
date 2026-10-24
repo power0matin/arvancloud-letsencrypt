@@ -39,7 +39,7 @@ bash install.sh</code></pre>
 
 <h2 dir="rtl" align="right">پیش‌نیازها</h2>
 <ul dir="rtl" align="right">
-  <li>سرور Debian یا Ubuntu با دسترسی <code dir="ltr">root</code> یا <code dir="ltr">sudo</code>.</li>
+  <li>محیط‌های هدف: Debian 12/13 و Ubuntu 22.04/24.04 LTS با دسترسی <code dir="ltr">root</code> یا <code dir="ltr">sudo</code>. در CI میزبانی‌شده فعلاً Ubuntu 22.04 و 24.04 آزمایش می‌شوند؛ Debian هنوز در ماتریس CI نیست.</li>
   <li>دامنه‌ای که زون DNS آن در آروان‌کلاد مدیریت می‌شود.</li>
   <li>کلید API با مجوز مشاهدهٔ زون و ایجاد، فهرست‌کردن و حذف رکوردهای DNS.</li>
   <li>دسترسی خروجی HTTPS به API آروان‌کلاد و سرویس صدور گواهی.</li>
@@ -129,13 +129,13 @@ sudo bash install.sh --help</code></pre>
 </ul>
 
 <h2 dir="rtl" align="right">توسعه و انتشار</h2>
-<p dir="rtl" align="right">CI نحو اسکریپت‌ها، ShellCheck و یکسان‌بودن پلاگین تعبیه‌شده در <code dir="ltr">core.sh</code> با فایل <code dir="ltr">src/dns_arvan.sh</code> را بررسی می‌کند.</p>
+<p dir="rtl" align="right">CI روی Ubuntu 22.04 و 24.04 اجرا می‌شود و نحو اسکریپت‌ها، ShellCheck، <code dir="ltr">actionlint</code>، تست‌های رفتاری Bats، پاک‌سازی فایل‌های احراز هویت و بررسی checksum دانلودها را کنترل می‌کند. Debian در فهرست محیط‌های هدف است، اما هنوز در CI میزبانی‌شده آزمایش نمی‌شود.</p>
 <pre dir="ltr" align="left"><code>bash -n install.sh
 bash -n menu.sh
 bash -n core.sh
 sh -n src/dns_arvan.sh
 shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
-bats tests/dns_arvan.bats</code></pre>
+bats tests/*.bats</code></pre>
 <p dir="rtl" align="right">نسخه‌های منتشرشده در صفحهٔ <a href="https://github.com/power0matin/arvancloud-letsencrypt/releases">Releases</a> قرار دارند. عنوان Release فقط شمارهٔ نسخه است؛ نام پروژه و توضیحات تغییرات در بدنهٔ Release می‌آیند. نصب‌کننده فایل‌های همراه را از یک تگ نسخهٔ ثابت می‌گیرد و checksum آن‌ها را با <code dir="ltr">SHA256SUMS</code> همان انتشار بررسی می‌کند. این بررسی خرابی یا ناهماهنگی فایل‌ها را تشخیص می‌دهد، اما امضای رمزنگاری‌شدهٔ ناشر نیست. مجوز پروژه <span dir="ltr">GPL-3.0-or-later</span> است؛ متن کامل در <a href="./LICENSE">LICENSE</a> قرار دارد. منشأ افزونهٔ DNS نیز در <a href="./THIRD_PARTY_NOTICES.md">اعلان‌های اجزای ثالث</a> توضیح داده شده است.</p>
 
 <h2 dir="rtl" align="right">تماس و پشتیبانی</h2>

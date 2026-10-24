@@ -1,7 +1,10 @@
 #!/usr/bin/env bats
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+source "${BATS_TEST_DIRNAME}/test_helper.bash"
+
 setup() {
+  ensure_test_tmpdir
   local source_file="${BATS_TEST_DIRNAME}/../install.sh"
   eval "$(sed -n '/^prepare_release_downloads() {/,/^}$/p' "$source_file")"
   eval "$(sed -n '/^download_verified_component() {/,/^}$/p' "$source_file")"
