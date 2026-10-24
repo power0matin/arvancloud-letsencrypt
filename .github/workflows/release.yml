@@ -40,10 +40,23 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Install ShellCheck
+      - name: Install test and shell tooling
+        env:
+          ACTIONLINT_VERSION: "1.7.12"
+          ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
         run: |
+          set -Eeuo pipefail
           sudo apt-get update
-          sudo apt-get install --yes shellcheck
+          sudo apt-get install --yes bats jq shellcheck ruby python3 curl ca-certificates tar gzip
+          archive="$RUNNER_TEMP/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSLo "$archive" "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          printf '%s  %s\n' "$ACTIONLINT_SHA256" "$archive" | sha256sum --check --status
+          tar -xzf "$archive" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -version
+
+      - name: Lint GitHub Actions workflows
+        run: |
+          "$RUNNER_TEMP/actionlint" -color
 
       - name: Check shell syntax and CLI entrypoints
         run: |
@@ -52,9 +65,15 @@ jobs:
           bash -n menu.sh
           bash -n core.sh
           sh -n src/dns_arvan.sh
+          bash -n tests/staging/run-acme-staging.sh
           bash install.sh --help >/dev/null
           bash core.sh --help >/dev/null
-          shellcheck install.sh menu.sh core.sh src/dns_arvan.sh
+
+      - name: Run full behavioral test suite
+        run: bats tests/*.bats
+
+      - name: Run ShellCheck
+        run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh tests/staging/run-acme-staging.sh
 
       - name: Verify embedded DNS plugin and scan release files
         run: |
