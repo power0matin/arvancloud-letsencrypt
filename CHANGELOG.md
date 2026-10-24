@@ -2,38 +2,35 @@
 
 ## [Unreleased]
 
-- Record GitHub's recognized `GPL-3.0` repository license metadata in the roadmap status.
-- Add Debian 12 (Bookworm) and Debian 13 (Trixie) container checks for shell syntax, the full mocked Bats suite, and ShellCheck.
-- Keep Ubuntu 22.04/24.04 for actionlint, plugin parity, release-workflow guardrails, and shell/Bats checks.
-- Update roadmap and bilingual documentation to report 57 mocked Bats cases across nine files; the remaining v1.2.0 gate is one live staging issuance after owner-managed repository secrets are configured.
-
-- Add a manual-only GitHub Actions ACME staging workflow guarded by explicit confirmation and dedicated repository secrets, using a pinned acme.sh commit and the isolated staging runner. The workflow has passed mocked/static CI checks but has not yet been run against a live ArvanCloud test zone.
-
-- Resolve companion scripts from the same immutable release tag and verify downloaded components against that release's SHA-256 manifest before execution.
-
-- Add Bats-based mocked tests for ArvanCloud zone discovery, TXT creation and cleanup, malformed responses, credential absence, and API failures.
-- Add mocked issuance tests for acme.sh exit-code 2, failed issuance/install, partial certificate output, file modes, and reload-command argument handling.
-- Cover ArvanCloud access verification for valid, unauthorized, forbidden, inaccessible-zone, paginated, malformed, server-error, and transport-error responses; assert temporary auth-file cleanup on each path.
-- Exercise the replacement-key flow: retry after 401/403 or a zone-visibility error, cancel on empty input, reject multiline values, and stop without reprompting on network/API errors.
-- Cover foreground/background worker logging, persistence of issuance output, and failure behavior so an unsuccessful job is not logged as completed.
-- Fix worker status propagation: failed issuance/install now returns the failure code and records a failure marker instead of a false completion message.
-- Test temporary authorization-file cleanup through EXIT, HUP, INT, and TERM traps.
-- Add detached-worker lifecycle tests that close the parent shell and verify the worker logs completion/failure with the correct status.
-- Test version-pinned checksum verification for valid, mismatched, missing, duplicate, and unavailable manifests/components.
-- Retry transient DNS API GET transport failures and HTTP 429/5xx responses at most three times with bounded backoff; do not retry authorization failures or repeat DNS mutations.
-
 ## [1.1.4]
 
-- Replace the abbreviated license summary with the complete GPL-3.0-or-later text and document the upstream ArvanCloud DNS plugin provenance.
-- Require an explicitly confirmed manual release from the current main commit; separate read-only validation from the publisher job and pin checkout to a reviewed full commit SHA.
-- Clean up the temporary ArvanCloud authorization configuration on normal exits and common signals.
-- Document the restrictive certificate directory/private-key permissions and their implications for services running as non-root.
+### Security and release integrity
+
+- Replace the abbreviated license summary with the complete GPL-3.0-or-later text, SPDX identifiers, and third-party provenance for the adapted ArvanCloud DNS plugin. GitHub recognizes the repository license as `GPL-3.0`.
+- Require explicit manual release publishing from the current `main` commit; split read-only validation from the publisher job, use least-privilege token permissions, pin `actions/checkout` to a reviewed full commit SHA, and reject unverifiable or already-existing tags/releases.
+- Pin `install.sh`, `menu.sh`, and `core.sh` to the same immutable release tag; verify every downloaded script against that release's SHA-256 manifest before execution.
+- Clean up temporary ArvanCloud authorization files on normal exits and common signals; verify the temporary files use restrictive permissions.
+- Document certificate directory/private-key permissions, service access implications, and the safe use of custom output directories.
+- Add a guarded manual ACME staging integration workflow that requires explicit confirmation and dedicated repository secrets, uses a pinned upstream acme.sh commit, and keeps staging files isolated from production paths. A live staging issuance is still required before this release is considered fully validated.
+
+### DNS and certificate reliability
+
+- Retry read-only ArvanCloud DNS GET transport failures and HTTP 429/5xx responses at most three total attempts with bounded backoff; do not retry authorization failures or repeat DNS mutations.
+- Preserve exact TXT-record cleanup behavior so only the matching ACME challenge record is deleted.
+- Make the replacement-key flow retry only for credential/zone-access failures, reject empty or multi-line keys, and stop rather than reprompt on network/unexpected API errors.
+- Preserve worker failure exit codes and ensure failed issuance/install operations are not logged as completed.
+- Verify certificate installation output, file presence and permissions, and OpenSSL parsing before reporting success.
+
+### Testing and CI
+
+- Add 57 deterministic mocked Bats cases across nine files covering DNS API behavior, authentication/zone access, cleanup on EXIT/HUP/INT/TERM, replacement keys, issuance/install failures, foreground/background worker lifecycle, checksum verification, and staging input guards.
+- Run CI on Ubuntu 22.04/24.04 and Debian 12/13; include Bash/sh syntax checks, ShellCheck, actionlint, DNS plugin parity, installer safety checks, and the complete mocked Bats suite.
+- Extend release preflight to run the complete behavioral test suite and workflow linting before publishing.
 
 ## [1.1.3] - 2026-10-24
 
 - Show certificate output paths in the interactive terminal while continuing to append issuance output to the ACME log.
 - Keep background issuance logs available and print the destination directory before starting the background job.
-
 
 ## [1.1.2] - 2026-10-24
 
