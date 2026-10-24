@@ -468,10 +468,22 @@ issue_and_install() {
 
   [[ -s "${ACME_HOME}/${DOMAIN}_ecc/fullchain.cer" ]] || die "The ACME certificate file was not created."
   log "Installing certificate files into $INSTALL_DIR"
-  "$ACME_BIN" --home "$ACME_HOME" "${install_args[@]}"
+  "$ACME_BIN" --home "$ACME_HOME" "${install_args[@]}" ||
+    die "acme.sh could not install the certificate files. Check ${LOG_DIR}/acme-issue.log."
 
-  chmod 600 "${INSTALL_DIR}/privkey.pem"
-  chmod 644 "${INSTALL_DIR}/cert.pem" "${INSTALL_DIR}/chain.pem" "${INSTALL_DIR}/fullchain.pem"
+  [[ -s "${INSTALL_DIR}/privkey.pem" &&
+     -s "${INSTALL_DIR}/cert.pem" &&
+     -s "${INSTALL_DIR}/chain.pem" &&
+     -s "${INSTALL_DIR}/fullchain.pem" ]] ||
+    die "Certificate installation is incomplete; one or more expected files are missing or empty."
+
+  chmod 600 "${INSTALL_DIR}/privkey.pem" ||
+    die "Could not set the private-key permissions."
+  chmod 644 "${INSTALL_DIR}/cert.pem" "${INSTALL_DIR}/chain.pem" "${INSTALL_DIR}/fullchain.pem" ||
+    die "Could not set the certificate-file permissions."
+
+  openssl x509 -in "${INSTALL_DIR}/fullchain.pem" -noout -subject -issuer -dates -ext subjectAltName ||
+    die "The installed full-chain certificate failed OpenSSL validation."
   log "Certificate installed successfully"
   printf '\nCertificate files are available at:\n'
   printf '  Directory:     %s\n' "$INSTALL_DIR"
@@ -479,7 +491,6 @@ issue_and_install() {
   printf '  Chain:         %s\n' "${INSTALL_DIR}/chain.pem"
   printf '  Full chain:    %s\n' "${INSTALL_DIR}/fullchain.pem"
   printf '  Private key:   %s\n\n' "${INSTALL_DIR}/privkey.pem"
-  openssl x509 -in "${INSTALL_DIR}/fullchain.pem" -noout -subject -issuer -dates -ext subjectAltName
 }
 
 run_worker() {
