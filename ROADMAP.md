@@ -17,14 +17,14 @@ This roadmap is an ordered plan, not a promise of calendar dates. A version is r
 
 Released capabilities include the interactive menu, non-interactive CLI, ArvanCloud DNS-01 plugin, wildcard issuance, acme.sh renewal registration, certificate inspection, logs, background issuance, output-path reporting, and a SHA-256 release manifest.
 
-The release workflow, version-pinned component downloads, behavioral checksum verification, bounded DNS GET retries, replacement-key handling, worker failure propagation, and authorization-file cleanup are now implemented on `main`. CI runs 50 mocked Bats cases across seven files, plus shell syntax, ShellCheck, actionlint, plugin parity, and safety checks. The public release channel remains `v1.1.3`; no new release has been published. The remaining release gates are one manual ACME staging integration run with dedicated test credentials, Debian CI coverage, and a detached-worker lifecycle check.
+The release workflow, version-pinned component downloads, behavioral checksum verification, bounded DNS GET retries, replacement-key handling, worker failure propagation, authorization-file cleanup, and detached-worker lifecycle checks are implemented on `main`. CI runs 52 mocked Bats cases across eight files. Ubuntu 22.04/24.04 run shell syntax, Bats, ShellCheck, actionlint, plugin parity, and release-safety checks; Debian 12/13 run shell syntax, Bats, and ShellCheck. The public release channel remains `v1.1.3`; no new release has been published. The only remaining v1.2.0 integration gate is a manual ACME staging issuance using a dedicated test subdomain and revocable ArvanCloud test key.
 
 ---
 
 ## v1.1.4 — Security and release discipline
 
 **Type:** Patch release · **Priority:** P0  
-**Implementation status:** Full GPLv3 text, SPDX/provenance notes, manual-only release publishing, least-privilege release jobs, temporary auth-file cleanup, and certificate-permission docs are merged and CI-tested. `v1.1.4` has not been tagged or published; GitHub license recognition still needs a metadata check.
+**Implementation status:** Full GPLv3 text, SPDX/provenance notes, manual-only release publishing, least-privilege release jobs, temporary auth-file cleanup, and certificate-permission docs are merged and CI-tested. `v1.1.4` has not been tagged or published. GitHub's license classification has not been independently verified through the repository license endpoint.
 
 ### Planned work
 
@@ -50,7 +50,7 @@ The release workflow, version-pinned component downloads, behavioral checksum ve
 
 **Type:** Minor release · **Priority:** P1  
 **Dependency:** v1.1.4 release safeguards  
-**Implementation status:** 50 mocked Bats cases cover DNS mutation safety, API/access errors, replacement keys, auth cleanup on EXIT/HUP/INT/TERM, issuance/install failures, worker status/logging, and checksum verification. Bounded GET retries and actionlint are merged. Remaining gates: one manual staging integration run, Debian CI coverage, and an end-to-end detached-worker lifecycle check.
+**Implementation status:** 52 mocked Bats cases cover DNS mutation safety, API/access errors, replacement keys, auth cleanup on EXIT/HUP/INT/TERM, issuance/install failures, worker status/logging, detached worker lifecycle, and checksum verification. Bounded GET retries, actionlint, and Debian 12/13 CI are merged. The remaining integration gate is one manual staging issuance using dedicated test credentials.
 
 ### Planned work
 
