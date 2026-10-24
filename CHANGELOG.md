@@ -10,6 +10,7 @@
 - Add mocked issuance tests for acme.sh exit-code 2, failed issuance/install, partial certificate output, file modes, and reload-command argument handling.
 - Cover ArvanCloud access verification for valid, unauthorized, forbidden, inaccessible-zone, paginated, malformed, server-error, and transport-error responses; assert temporary auth-file cleanup on each path.
 - Exercise the replacement-key flow: retry after 401/403 or a zone-visibility error, cancel on empty input, reject multiline values, and stop without reprompting on network/API errors.
+- Cover foreground/background worker logging, persistence of issuance output, and failure behavior so an unsuccessful job is not logged as completed.
 - Retry transient DNS API GET transport failures and HTTP 429/5xx responses at most three times with bounded backoff; do not retry authorization failures or repeat DNS mutations.
 
 ## [1.1.4]
