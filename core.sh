@@ -563,11 +563,13 @@ run_worker() {
   fi
 
   if [[ "$worker_status" -ne 0 ]]; then
-    log "Certificate job for $DOMAIN failed with exit status $worker_status" >>"${LOG_DIR}/acme-issue.log"
+    printf '[%s] Certificate job for %s failed with exit status %s\n' \
+      "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$DOMAIN" "$worker_status" >>"${LOG_DIR}/acme-issue.log"
     return "$worker_status"
   fi
 
-  log "Completed certificate job for $DOMAIN" >>"${LOG_DIR}/acme-issue.log"
+  printf '[%s] Completed certificate job for %s\n' \
+    "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$DOMAIN" >>"${LOG_DIR}/acme-issue.log"
 }
 
 install_dependencies
