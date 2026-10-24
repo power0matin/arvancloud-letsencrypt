@@ -1,7 +1,10 @@
 #!/usr/bin/env bats
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+source "${BATS_TEST_DIRNAME}/test_helper.bash"
+
 setup() {
+  ensure_test_tmpdir
   source "${BATS_TEST_DIRNAME}/../src/dns_arvan.sh"
 
   export MOCK_LOG="${BATS_TEST_TMPDIR}/mock-api.log"
