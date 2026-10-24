@@ -200,7 +200,7 @@ jobs:
           marker = '  install -m 700 /dev/stdin "$DNSAPI_PATH" <<' + chr(39) + 'PLUGIN' + chr(39) + chr(10)
           if core.count(marker) != 1:
               raise SystemExit("Expected exactly one embedded DNS plugin block.")
-          embedded = core.split(marker, 1)[1].split("\\nPLUGIN\\n", 1)[0]
+          embedded = core.split(marker, 1)[1].split("\nPLUGIN\n", 1)[0]
           if embedded.strip() != source.strip():
               raise SystemExit("Embedded DNS plugin differs from src/dns_arvan.sh.")
           print("Embedded DNS plugin parity passed.")
