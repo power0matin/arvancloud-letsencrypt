@@ -2,10 +2,9 @@
 
 ## [Unreleased]
 
-- Validate Debian 12 and Debian 13 in a dedicated workflow, separate from the Ubuntu matrix.
-- Add Debian 12 (Bookworm) and Debian 13 (Trixie) container jobs for shell syntax, plugin parity, actionlint, ShellCheck, and the full mocked Bats suite.
-- Run the full behavioral suite on Ubuntu 22.04 and 24.04 LTS; document that Debian is a target environment but is not yet in hosted CI.
-- Update the roadmap to record 50 mocked Bats cases and the remaining manual staging, Debian CI, and detached-worker release gates.
+- Add Debian 12 (Bookworm) and Debian 13 (Trixie) container checks for shell syntax, the full mocked Bats suite, and ShellCheck.
+- Keep Ubuntu 22.04/24.04 for actionlint, plugin parity, release-workflow guardrails, and shell/Bats checks.
+- Update roadmap and bilingual documentation to report 52 mocked Bats cases across eight files; the remaining v1.2.0 gate is a manual staging issuance using dedicated test credentials.
 
 - Add a manual ACME staging runner that isolates the ACME account/configuration and certificate output, hides the ArvanCloud key prompt, and never deploys a staging certificate to production paths.
 
