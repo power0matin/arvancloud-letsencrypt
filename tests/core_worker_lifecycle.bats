@@ -20,7 +20,7 @@ setup() {
 }
 
 log() {
-  printf '%s\n' "$*" >> "$LOG_DIR/install.log"
+  printf '%s\n' "$*"
 }
 
 issue_and_install() {
@@ -62,7 +62,7 @@ wait_for_log_text() {
   wait_for_log_text "$LOG_DIR/acme-issue.log" 'Completed certificate job for example.com'
   grep -Fq 'worker-started pid=' "$LOG_DIR/acme-issue.log"
   grep -Fq 'worker-finished domain=example.com status=0' "$LOG_DIR/acme-issue.log"
-  grep -Fq 'Started PID ' "$LOG_DIR/install.log"
+  [[ "$output" == *"Started PID "* ]]
 }
 
 @test "detached worker failure survives parent exit and keeps the nonzero status" {
