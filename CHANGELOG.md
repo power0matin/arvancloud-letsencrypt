@@ -6,7 +6,7 @@
 - Keep Ubuntu 22.04/24.04 for actionlint, plugin parity, release-workflow guardrails, and shell/Bats checks.
 - Update roadmap and bilingual documentation to report 52 mocked Bats cases across eight files; the remaining v1.2.0 gate is a manual staging issuance using dedicated test credentials.
 
-- Add a manual ACME staging runner that isolates the ACME account/configuration and certificate output, hides the ArvanCloud key prompt, and never deploys a staging certificate to production paths.
+- Add a manual-only GitHub Actions ACME staging workflow guarded by explicit confirmation and dedicated repository secrets, using a pinned acme.sh commit and the isolated staging runner.
 
 - Resolve companion scripts from the same immutable release tag and verify downloaded components against that release's SHA-256 manifest before execution.
 
