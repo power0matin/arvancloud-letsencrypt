@@ -24,7 +24,7 @@ The release workflow, version-pinned component downloads, behavioral checksum ve
 ## v1.1.4 — Security and release discipline
 
 **Type:** Patch release · **Priority:** P0  
-**Implementation status:** Full GPLv3 text, SPDX/provenance notes, manual-only release publishing, least-privilege release jobs, temporary auth-file cleanup, and certificate-permission docs are merged and CI-tested. `v1.1.4` has not been tagged or published. GitHub's license classification has not been independently verified through the repository license endpoint.
+**Implementation status:** Full GPLv3 text, SPDX/provenance notes, manual-only release publishing, least-privilege release jobs, temporary auth-file cleanup, and certificate-permission docs are merged and CI-tested. GitHub repository metadata recognizes the license as `GPL-3.0`. `v1.1.4` has not been tagged or published; publication remains blocked on the documented staging/release gate.
 
 ### Planned work
 
