@@ -35,7 +35,7 @@ read_staging_domain() {
 
   candidate="$(printf '%s' "$candidate" | tr '[:upper:]' '[:lower:]' | sed 's/\.$//')"
   if [[ "$from_environment" == "1" && "$candidate" != acme-test.* ]]; then
-    printf 'Non-interactive staging domain must start with acme-test.\\n' >&2
+    printf 'Non-interactive staging domain must start with acme-test.\n' >&2
     return 2
   fi
   [[ "$candidate" =~ ^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$ ]] || {
