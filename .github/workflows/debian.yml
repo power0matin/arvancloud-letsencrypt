@@ -1,0 +1,47 @@
+name: Debian checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  debian-bookworm:
+    runs-on: ubuntu-24.04
+    container:
+      image: debian:bookworm-slim
+    steps:
+      - name: Install Git for checkout
+        run: apt-get update && apt-get install --yes git ca-certificates
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install test dependencies
+        run: apt-get update && apt-get install --yes bats jq shellcheck
+      - name: Check shell syntax
+        run: bash -n install.sh && bash -n menu.sh && bash -n core.sh && bash -n tests/staging/run-acme-staging.sh && sh -n src/dns_arvan.sh
+      - name: Run Bats behavioral tests
+        run: bats tests/*.bats
+      - name: Run ShellCheck
+        run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh tests/staging/run-acme-staging.sh
+
+  debian-trixie:
+    runs-on: ubuntu-24.04
+    container:
+      image: debian:trixie-slim
+    steps:
+      - name: Install Git for checkout
+        run: apt-get update && apt-get install --yes git ca-certificates
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install test dependencies
+        run: apt-get update && apt-get install --yes bats jq shellcheck
+      - name: Check shell syntax
+        run: bash -n install.sh && bash -n menu.sh && bash -n core.sh && bash -n tests/staging/run-acme-staging.sh && sh -n src/dns_arvan.sh
+      - name: Run Bats behavioral tests
+        run: bats tests/*.bats
+      - name: Run ShellCheck
+        run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh tests/staging/run-acme-staging.sh
