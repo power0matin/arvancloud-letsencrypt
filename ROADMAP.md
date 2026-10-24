@@ -17,7 +17,7 @@ This roadmap is an ordered plan, not a promise of calendar dates. A version is r
 
 Released capabilities include the interactive menu, non-interactive CLI, ArvanCloud DNS-01 plugin, wildcard issuance, acme.sh renewal registration, certificate inspection, logs, background issuance, output-path reporting, and a SHA-256 release manifest.
 
-The release workflow, version-pinned component downloads, behavioral checksum verification, bounded DNS GET retries, replacement-key handling, worker failure propagation, authorization-file cleanup, and detached-worker lifecycle checks are implemented on `main`. CI runs 52 mocked Bats cases across eight files. Ubuntu 22.04/24.04 run shell syntax, Bats, ShellCheck, actionlint, plugin parity, and release-safety checks; Debian 12/13 run shell syntax, Bats, and ShellCheck. The public release channel remains `v1.1.3`; no new release has been published. The only remaining v1.2.0 integration gate is a manual ACME staging issuance using a dedicated test subdomain and revocable ArvanCloud test key.
+The release workflow, version-pinned component downloads, behavioral checksum verification, bounded DNS GET retries, replacement-key handling, worker failure propagation, authorization-file cleanup, detached-worker lifecycle checks, and a guarded manual ACME staging workflow are implemented on `main`. CI runs 57 mocked Bats cases across nine files. Ubuntu 22.04/24.04 run shell syntax, Bats, ShellCheck, actionlint, plugin parity, and release-safety checks; Debian 12/13 run shell syntax, Bats, and ShellCheck. The public release channel remains `v1.1.3`; no new release has been published. The remaining v1.2.0 gate is a live manual staging issuance using dedicated repository secrets and an `acme-test.` subdomain; the workflow is prepared but has not been run against a live zone.
 
 ---
 
@@ -50,7 +50,7 @@ The release workflow, version-pinned component downloads, behavioral checksum ve
 
 **Type:** Minor release · **Priority:** P1  
 **Dependency:** v1.1.4 release safeguards  
-**Implementation status:** 52 mocked Bats cases cover DNS mutation safety, API/access errors, replacement keys, auth cleanup on EXIT/HUP/INT/TERM, issuance/install failures, worker status/logging, detached worker lifecycle, and checksum verification. Bounded GET retries, actionlint, and Debian 12/13 CI are merged. The remaining integration gate is one manual staging issuance using dedicated test credentials.
+**Implementation status:** 57 mocked Bats cases cover DNS mutation safety, API/access errors, replacement keys, auth cleanup on EXIT/HUP/INT/TERM, issuance/install failures, worker status/logging, detached worker lifecycle, checksum verification, and staging input validation. Bounded GET retries, actionlint, Debian 12/13 CI, and the guarded manual staging workflow are merged. The remaining integration gate is one actual staging issuance after the owner configures the dedicated domain/API-key secrets.
 
 ### Planned work
 
@@ -79,7 +79,7 @@ The release workflow, version-pinned component downloads, behavioral checksum ve
 
 **Type:** Minor release · **Priority:** P0/P1  
 **Dependency:** v1.2.0 behavioral coverage  
-**Implementation status:** Immutable version-tag downloads and six behavioral checksum tests are merged to `main`. Release artifacts remain unpublished until the v1.2.0 reliability gate passes and the release workflow is explicitly dispatched.
+**Implementation status:** Immutable version-tag downloads and six behavioral checksum tests are merged to `main`. The pinned component paths are ready for the next release tag, but no new release assets have been published.
 
 ### Planned work
 
