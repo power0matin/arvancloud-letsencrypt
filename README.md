@@ -14,7 +14,7 @@
 
 <p align="center">Issue and renew Let's Encrypt wildcard certificates using ArvanCloud DNS-01 validation.</p>
 
-<p align="center"><a href="./README.fa.md">راهنمای فارسی (HTML، راست‌چین)</a></p>
+<p align="center"><a href="./README.fa.md">راهنمای فارسی</a></p>
 
 <p align="center">
   <a href="#features">Features</a> · <a href="#quick-start">Quick start</a> · <a href="#interactive-menu">Menu</a> · <a href="#non-interactive-usage">CLI</a> · <a href="#troubleshooting">Troubleshooting</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="LICENSE">License</a> · <a href="THIRD_PARTY_NOTICES.md">Third-party notices</a>
