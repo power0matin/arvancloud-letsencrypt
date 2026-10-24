@@ -1,0 +1,85 @@
+name: ACME staging integration
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Type RUN_STAGING to order a staging certificate for the dedicated test subdomain"
+        required: true
+        type: choice
+        options:
+          - "NO"
+          - "RUN_STAGING"
+        default: "NO"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: acme-staging-integration
+  cancel-in-progress: false
+
+jobs:
+  staging:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out project source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Check out pinned acme.sh source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: acmesh-official/acme.sh
+          ref: 37d064f7b580055d3f2ddf9a9c960f754f3694d6
+          path: acme-sh-source
+          persist-credentials: false
+
+      - name: Validate manual confirmation and staging secrets
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+          ARVAN_STAGING_DOMAIN: ${{ secrets.ARVAN_STAGING_DOMAIN }}
+          ARVAN_STAGING_API_KEY: ${{ secrets.ARVAN_STAGING_API_KEY }}
+        run: |
+          set -Eeuo pipefail
+          [[ "$GITHUB_REF" == "refs/heads/main" ]] || {
+            echo "Staging integration may only run from main." >&2
+            exit 1
+          }
+          [[ "$CONFIRMATION" == "RUN_STAGING" ]] || {
+            echo "Staging test was not explicitly confirmed." >&2
+            exit 1
+          }
+          [[ -n "$ARVAN_STAGING_DOMAIN" && -n "$ARVAN_STAGING_API_KEY" ]] || {
+            echo "Configure ARVAN_STAGING_DOMAIN and ARVAN_STAGING_API_KEY repository secrets first." >&2
+            exit 1
+          }
+          domain="${ARVAN_STAGING_DOMAIN,,}"
+          [[ "$domain" == acme-test.* ]] || {
+            echo "ARVAN_STAGING_DOMAIN must be a dedicated subdomain beginning with acme-test." >&2
+            exit 1
+          }
+          [[ "$domain" =~ ^acme-test\.([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$ ]] || {
+            echo "ARVAN_STAGING_DOMAIN is not a valid fully-qualified domain." >&2
+            exit 1
+          }
+          echo "Staging preflight passed; secret values are not printed."
+
+      - name: Install staging dependencies
+        run: |
+          set -Eeuo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes jq curl openssl ca-certificates
+
+      - name: Run isolated Let's Encrypt staging issuance
+        env:
+          ARVAN_STAGING_DOMAIN: ${{ secrets.ARVAN_STAGING_DOMAIN }}
+          ARVAN_STAGING_API_KEY: ${{ secrets.ARVAN_STAGING_API_KEY }}
+          ACME_SCRIPT: ${{ github.workspace }}/acme-sh-source/acme.sh
+        run: |
+          set -Eeuo pipefail
+          sudo --preserve-env=ARVAN_STAGING_DOMAIN,ARVAN_STAGING_API_KEY,ACME_SCRIPT \
+            bash tests/staging/run-acme-staging.sh ./src/dns_arvan.sh
