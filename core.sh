@@ -543,11 +543,18 @@ issue_and_install() {
 }
 
 run_worker() {
+  local worker_status=0
   if [[ "$BACKGROUND" == "1" ]]; then
-    issue_and_install >>"${LOG_DIR}/acme-issue.log" 2>&1
+    issue_and_install >>"${LOG_DIR}/acme-issue.log" 2>&1 || worker_status=$?
   else
-    issue_and_install > >(tee -a "${LOG_DIR}/acme-issue.log") 2>&1
+    issue_and_install > >(tee -a "${LOG_DIR}/acme-issue.log") 2>&1 || worker_status=$?
   fi
+
+  if [[ "$worker_status" -ne 0 ]]; then
+    log "Certificate job for $DOMAIN failed with exit status $worker_status" >>"${LOG_DIR}/acme-issue.log"
+    return "$worker_status"
+  fi
+
   log "Completed certificate job for $DOMAIN" >>"${LOG_DIR}/acme-issue.log"
 }
 
