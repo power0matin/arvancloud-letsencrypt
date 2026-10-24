@@ -74,7 +74,7 @@ jobs:
           from pathlib import Path
 
           workflow = Path(".github/workflows/staging.yml").read_text()
-          assert "on:\\n  workflow_dispatch:" in workflow, "Staging workflow must be manual-only."
+          assert "on:\n  workflow_dispatch:" in workflow, "Staging workflow must be manual-only."
           assert 'default: "NO"' in workflow
           assert '[[ "$GITHUB_REF" == "refs/heads/main" ]]' in workflow
           assert '[[ "$CONFIRMATION" == "RUN_STAGING" ]]' in workflow
