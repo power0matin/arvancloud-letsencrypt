@@ -13,6 +13,7 @@
 - Cover foreground/background worker logging, persistence of issuance output, and failure behavior so an unsuccessful job is not logged as completed.
 - Fix worker status propagation: failed issuance/install now returns the failure code and records a failure marker instead of a false completion message.
 - Test temporary authorization-file cleanup through EXIT, HUP, INT, and TERM traps.
+- Test version-pinned checksum verification for valid, mismatched, missing, duplicate, and unavailable manifests/components.
 - Retry transient DNS API GET transport failures and HTTP 429/5xx responses at most three times with bounded backoff; do not retry authorization failures or repeat DNS mutations.
 
 ## [1.1.4]
