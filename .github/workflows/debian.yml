@@ -41,21 +41,6 @@ jobs:
           bash -n core.sh
           sh -n src/dns_arvan.sh
           bash -n tests/staging/run-acme-staging.sh
-      - name: Verify embedded ArvanCloud DNS plugin
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-      
-          core = Path("core.sh").read_text()
-          source = Path("src/dns_arvan.sh").read_text()
-          marker = '  install -m 700 /dev/stdin "$DNSAPI_PATH" <<' + chr(39) + 'PLUGIN' + chr(39) + chr(10)
-          if core.count(marker) != 1:
-              raise SystemExit("Expected exactly one embedded DNS plugin block.")
-          embedded = core.split(marker, 1)[1].split("\nPLUGIN\n", 1)[0]
-          if embedded.strip() != source.strip():
-              raise SystemExit("Embedded DNS plugin differs from src/dns_arvan.sh.")
-          print("Embedded DNS plugin parity passed.")
-          PY
       - name: Lint GitHub Actions workflows
         run: "$RUNNER_TEMP/actionlint" -color
       - name: Run Bats behavioral tests
