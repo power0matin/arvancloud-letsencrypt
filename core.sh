@@ -474,6 +474,18 @@ verify_arvan_access_with_replacement_key() {
   done
 }
 
+start_background_worker() {
+  local worker_pid
+  log "Certificate output directory: $INSTALL_DIR"
+  log "Starting the certificate job in the background"
+  trap '' HUP
+  run_worker < /dev/null &
+  worker_pid="$!"
+  disown "$worker_pid" 2>/dev/null || true
+  log "Started PID $worker_pid"
+  log "Follow progress with: tail -f $LOG_DIR/acme-issue.log"
+}
+
 install_cron_if_missing() {
   if ! crontab -l 2>/dev/null | grep -Eq 'acme\.sh.*--cron'; then
     log "Installing the acme.sh cron job"
@@ -566,14 +578,7 @@ get_access_key
 verify_arvan_access_with_replacement_key
 
 if [[ "$BACKGROUND" == "1" ]]; then
-  log "Certificate output directory: $INSTALL_DIR"
-  log "Starting the certificate job in the background"
-  trap '' HUP
-  run_worker < /dev/null &
-  worker_pid="$!"
-  disown "$worker_pid" 2>/dev/null || true
-  log "Started PID $worker_pid"
-  log "Follow progress with: tail -f $LOG_DIR/acme-issue.log"
+  start_background_worker
 else
   run_worker
 fi
