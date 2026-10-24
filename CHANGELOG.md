@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Validate Debian 12 and Debian 13 in a dedicated workflow, separate from the Ubuntu matrix.
 - Add Debian 12 (Bookworm) and Debian 13 (Trixie) container jobs for shell syntax, plugin parity, actionlint, ShellCheck, and the full mocked Bats suite.
 - Run the full behavioral suite on Ubuntu 22.04 and 24.04 LTS; document that Debian is a target environment but is not yet in hosted CI.
 - Update the roadmap to record 50 mocked Bats cases and the remaining manual staging, Debian CI, and detached-worker release gates.
