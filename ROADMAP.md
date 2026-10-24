@@ -17,14 +17,14 @@ This roadmap is an ordered plan, not a promise of calendar dates. A version is r
 
 Released capabilities include the interactive menu, non-interactive CLI, ArvanCloud DNS-01 plugin, wildcard issuance, acme.sh renewal registration, certificate inspection, logs, background issuance, output-path reporting, and a SHA-256 release manifest.
 
-The main gaps to close next are behavioral test coverage, release-workflow safety, deterministic component downloads, better cleanup after interruption, and a documented recovery path. New visual badges or unrelated features are not a priority until these gaps are addressed.
+The release workflow, version-pinned component downloads, behavioral checksum verification, bounded DNS GET retries, replacement-key handling, worker failure propagation, and authorization-file cleanup are now implemented on `main`. CI runs 50 mocked Bats cases across seven files, plus shell syntax, ShellCheck, actionlint, plugin parity, and safety checks. The public release channel remains `v1.1.3`; no new release has been published. The remaining release gates are one manual ACME staging integration run with dedicated test credentials, Debian CI coverage, and a detached-worker lifecycle check.
 
 ---
 
 ## v1.1.4 — Security and release discipline
 
 **Type:** Patch release · **Priority:** P0  
-**Implementation status:** Security and release-integrity changes are merged to `main`; `v1.1.4` has not been tagged or published.
+**Implementation status:** Full GPLv3 text, SPDX/provenance notes, manual-only release publishing, least-privilege release jobs, temporary auth-file cleanup, and certificate-permission docs are merged and CI-tested. `v1.1.4` has not been tagged or published; GitHub license recognition still needs a metadata check.
 
 ### Planned work
 
@@ -50,7 +50,7 @@ The main gaps to close next are behavioral test coverage, release-workflow safet
 
 **Type:** Minor release · **Priority:** P1  
 **Dependency:** v1.1.4 release safeguards  
-**Implementation status:** Mocked DNS tests, bounded GET retries, and actionlint are merged; recovery scenarios and successful optional staging validation remain open.
+**Implementation status:** 50 mocked Bats cases cover DNS mutation safety, API/access errors, replacement keys, auth cleanup on EXIT/HUP/INT/TERM, issuance/install failures, worker status/logging, and checksum verification. Bounded GET retries and actionlint are merged. Remaining gates: one manual staging integration run, Debian CI coverage, and an end-to-end detached-worker lifecycle check.
 
 ### Planned work
 
@@ -79,7 +79,7 @@ The main gaps to close next are behavioral test coverage, release-workflow safet
 
 **Type:** Minor release · **Priority:** P0/P1  
 **Dependency:** v1.2.0 behavioral coverage  
-**Implementation status:** Version-pinned downloads and checksum verification are merged to `main` ahead of a formal release; publish only after the v1.2.0 reliability gate is met.
+**Implementation status:** Immutable version-tag downloads and six behavioral checksum tests are merged to `main`. Release artifacts remain unpublished until the v1.2.0 reliability gate passes and the release workflow is explicitly dispatched.
 
 ### Planned work
 
