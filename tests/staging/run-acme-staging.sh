@@ -25,16 +25,19 @@ usage() {
 }
 
 read_staging_domain() {
-  local candidate="${ARVAN_STAGING_DOMAIN:-}"
+  local candidate="${ARVAN_STAGING_DOMAIN:-}" from_environment=0
   if [[ -z "$candidate" ]]; then
     printf 'Dedicated ArvanCloud test subdomain (not your production hostname): ' > /dev/tty
     IFS= read -r candidate < /dev/tty || { printf 'Could not read domain from terminal.\n' >&2; return 1; }
-  elif [[ "$candidate" != acme-test.* ]]; then
-    printf 'Non-interactive staging domain must start with acme-test.\n' >&2
-    return 2
+  else
+    from_environment=1
   fi
 
   candidate="$(printf '%s' "$candidate" | tr '[:upper:]' '[:lower:]' | sed 's/\.$//')"
+  if [[ "$from_environment" == "1" && "$candidate" != acme-test.* ]]; then
+    printf 'Non-interactive staging domain must start with acme-test.\\n' >&2
+    return 2
+  fi
   [[ "$candidate" =~ ^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$ ]] || {
     printf 'Invalid fully-qualified domain. Use a dedicated test subdomain you control.\n' >&2
     return 2
