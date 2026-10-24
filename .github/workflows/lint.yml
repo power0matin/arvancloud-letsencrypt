@@ -68,6 +68,24 @@ jobs:
                   raise SystemExit(f"Staging test must not install or replace production certificates: {forbidden}")
           print("ACME staging runner isolation checks passed.")
           PY
+      - name: Validate manual staging workflow gates
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          workflow = Path(".github/workflows/staging.yml").read_text()
+          assert re.search(r"(?m)^on:\\n  workflow_dispatch:$", workflow), "Staging workflow must be manual-only."
+          assert 'default: "NO"' in workflow
+          assert '[[ "$GITHUB_REF" == "refs/heads/main" ]]' in workflow
+          assert '[[ "$CONFIRMATION" == "RUN_STAGING" ]]' in workflow
+          assert "secrets.ARVAN_STAGING_DOMAIN" in workflow
+          assert "secrets.ARVAN_STAGING_API_KEY" in workflow
+          assert "37d064f7b580055d3f2ddf9a9c960f754f3694d6" in workflow
+          actions = re.findall(r"^\\s+uses:\\s+([^\\s]+)", workflow, re.MULTILINE)
+          assert actions and all(re.fullmatch(r"[^@]+@[0-9a-f]{40}", action) for action in actions), actions
+          print("Manual staging workflow gates and action pins passed.")
+          PY
       - name: Validate release workflow safety
         run: |
           set -Eeuo pipefail
@@ -149,6 +167,6 @@ jobs:
         run: |
           "$RUNNER_TEMP/actionlint" -color
       - name: Run Bats behavioral tests
-        run: bats tests/dns_arvan.bats tests/core_auth_validation.bats tests/core_auth_cleanup_signals.bats tests/core_replacement_key.bats tests/core_issuance_recovery.bats tests/core_worker.bats tests/core_worker_lifecycle.bats tests/installer_checksum_validation.bats
+        run: bats tests/dns_arvan.bats tests/core_auth_validation.bats tests/core_auth_cleanup_signals.bats tests/core_replacement_key.bats tests/core_issuance_recovery.bats tests/core_worker.bats tests/core_worker_lifecycle.bats tests/installer_checksum_validation.bats tests/staging_runner.bats
       - name: Run ShellCheck
         run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh tests/staging/run-acme-staging.sh
