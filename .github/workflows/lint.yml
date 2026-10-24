@@ -176,3 +176,64 @@ jobs:
         run: bats tests/dns_arvan.bats tests/core_auth_validation.bats tests/core_auth_cleanup_signals.bats tests/core_replacement_key.bats tests/core_issuance_recovery.bats tests/core_worker.bats tests/core_worker_lifecycle.bats tests/installer_checksum_validation.bats tests/staging_runner.bats
       - name: Run ShellCheck
         run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh tests/staging/run-acme-staging.sh
+
+  debian-checks:
+    name: debian-checks (${{ matrix.image }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        image: [debian:bookworm-slim, debian:trixie-slim]
+    container:
+      image: ${{ matrix.image }}
+    steps:
+      - name: Install Git for checkout
+        run: |
+          apt-get update
+          apt-get install --yes git ca-certificates
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install test and shell tooling
+        env:
+          ACTIONLINT_VERSION: "1.7.12"
+          ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
+        run: |
+          set -Eeuo pipefail
+          apt-get update
+          apt-get install --yes bats jq shellcheck ruby python3 curl ca-certificates tar gzip
+          mkdir -p "$RUNNER_TEMP"
+          archive="$RUNNER_TEMP/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSLo "$archive" "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_linux_amd64.tar.gz"
+          printf '%s  %s\n' "$ACTIONLINT_SHA256" "$archive" | sha256sum --check --status
+          tar -xzf "$archive" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -version
+      - name: Check shell syntax
+        run: |
+          bash -n install.sh
+          bash -n menu.sh
+          bash -n core.sh
+          sh -n src/dns_arvan.sh
+          bash -n tests/staging/run-acme-staging.sh
+      - name: Verify embedded ArvanCloud DNS plugin
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          core = Path("core.sh").read_text()
+          source = Path("src/dns_arvan.sh").read_text()
+          marker = '  install -m 700 /dev/stdin "$DNSAPI_PATH" <<' + chr(39) + 'PLUGIN' + chr(39) + chr(10)
+          if core.count(marker) != 1:
+              raise SystemExit("Expected exactly one embedded DNS plugin block.")
+          embedded = core.split(marker, 1)[1].split("\nPLUGIN\n", 1)[0]
+          if embedded.strip() != source.strip():
+              raise SystemExit("Embedded DNS plugin differs from src/dns_arvan.sh.")
+          print("Embedded DNS plugin parity passed.")
+          PY
+      - name: Lint GitHub Actions workflows
+        run: |
+          "$RUNNER_TEMP/actionlint" -color
+      - name: Run all Bats tests
+        run: bats tests/*.bats
+      - name: Run ShellCheck
+        run: shellcheck install.sh menu.sh core.sh src/dns_arvan.sh tests/staging/run-acme-staging.sh
