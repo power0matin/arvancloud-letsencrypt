@@ -39,7 +39,7 @@ bash install.sh</code></pre>
 
 <h2 dir="rtl" align="right">پیش‌نیازها</h2>
 <ul dir="rtl" align="right">
-  <li>محیط‌های هدف: Debian 12/13 و Ubuntu 22.04/24.04 LTS با دسترسی <code dir="ltr">root</code> یا <code dir="ltr">sudo</code>. در CI میزبانی‌شده فعلاً Ubuntu 22.04 و 24.04 آزمایش می‌شوند؛ Debian هنوز در ماتریس CI نیست.</li>
+  <li>محیط‌های هدف: Debian 12 (Bookworm)، Debian 13 (Trixie) و Ubuntu 22.04/24.04 LTS با دسترسی <code dir="ltr">root</code> یا <code dir="ltr">sudo</code>. در CI روی هر دو نسخه Debian، نحو اسکریپت‌ها، تست‌های Bats و ShellCheck اجرا می‌شوند؛ ماتریس Ubuntu علاوه بر آن actionlint و بررسی‌های ایمنی workflow را اجرا می‌کند.</li>
   <li>دامنه‌ای که زون DNS آن در آروان‌کلاد مدیریت می‌شود.</li>
   <li>کلید API با مجوز مشاهدهٔ زون و ایجاد، فهرست‌کردن و حذف رکوردهای DNS.</li>
   <li>دسترسی خروجی HTTPS به API آروان‌کلاد و سرویس صدور گواهی.</li>
@@ -129,7 +129,7 @@ sudo bash install.sh --help</code></pre>
 </ul>
 
 <h2 dir="rtl" align="right">توسعه و انتشار</h2>
-<p dir="rtl" align="right">CI روی Ubuntu 22.04 و 24.04 اجرا می‌شود و نحو اسکریپت‌ها، ShellCheck، <code dir="ltr">actionlint</code>، تست‌های رفتاری Bats، پاک‌سازی فایل‌های احراز هویت و بررسی checksum دانلودها را کنترل می‌کند. Debian در فهرست محیط‌های هدف است، اما هنوز در CI میزبانی‌شده آزمایش نمی‌شود.</p>
+<p dir="rtl" align="right">CI روی Ubuntu 22.04 و 24.04 و Debian 12 و 13 اجرا می‌شود. هر چهار محیط نحو اسکریپت‌ها، تست‌های Bats و ShellCheck را اجرا می‌کنند؛ روی Ubuntu، actionlint، بررسی یکسان‌بودن پلاگین تعبیه‌شده و کنترل‌های ایمنی انتشار نیز اجرا می‌شوند.</p>
 <pre dir="ltr" align="left"><code>bash -n install.sh
 bash -n menu.sh
 bash -n core.sh
