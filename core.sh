@@ -425,6 +425,55 @@ verify_arvan_access() {
   return 11
 }
 
+read_replacement_key() {
+  REPLACEMENT_KEY=""
+  printf 'Arvan access key (hidden, Enter to cancel): ' > /dev/tty
+  IFS= read -r -s REPLACEMENT_KEY < /dev/tty || return 1
+  printf '\n' > /dev/tty
+}
+
+verify_arvan_access_with_replacement_key() {
+  local verify_status replacement_key
+  while true; do
+    if verify_arvan_access; then
+      break
+    else
+      verify_status=$?
+    fi
+
+    case "$verify_status" in
+      10)
+        printf '\nERROR: ArvanCloud rejected the key or denied API access.\n'
+        ;;
+      11)
+        printf '\nERROR: The key can reach ArvanCloud, but it cannot see the requested DNS zone.\n'
+        ;;
+      *)
+        die "Could not verify ArvanCloud access (check the API/network and $LOG_DIR/install.log)."
+        ;;
+    esac
+
+    printf 'Check the key and its IAM permissions for the requested DNS zone.\n'
+    printf 'Paste a corrected key below. You do not need to re-enter the domain or other options.\n'
+    if ! read_replacement_key; then
+      unset REPLACEMENT_KEY
+      die "Could not read the replacement key."
+    fi
+    replacement_key="$REPLACEMENT_KEY"
+    if [[ -z "$replacement_key" ]]; then
+      unset REPLACEMENT_KEY
+      die "Access verification cancelled. Fix the key or its IAM policy, then run the certificate step again."
+    fi
+    if [[ "$replacement_key" == *$'\n'* || "$replacement_key" == *$'\r'* ]]; then
+      unset REPLACEMENT_KEY replacement_key
+      die "Arvan access key must be a single line."
+    fi
+    ARVAN_ACCESS_KEY="$replacement_key"
+    export ARVAN_ACCESS_KEY
+    unset REPLACEMENT_KEY replacement_key
+  done
+}
+
 install_cron_if_missing() {
   if ! crontab -l 2>/dev/null | grep -Eq 'acme\.sh.*--cron'; then
     log "Installing the acme.sh cron job"
@@ -507,37 +556,7 @@ install_acme
 install_dns_plugin
 install_cron_if_missing
 get_access_key
-while true; do
-  if verify_arvan_access; then
-    break
-  else
-    verify_status=$?
-  fi
-
-  case "$verify_status" in
-    10)
-      printf '\nERROR: ArvanCloud rejected the key or denied API access.\n'
-      ;;
-    11)
-      printf '\nERROR: The key can reach ArvanCloud, but it cannot see the requested DNS zone.\n'
-      ;;
-    *)
-      die "Could not verify ArvanCloud access (check the API/network and $LOG_DIR/install.log)."
-      ;;
-  esac
-
-  printf 'Check the key and its IAM permissions for the requested DNS zone.\n'
-  printf 'Paste a corrected key below. You do not need to re-enter the domain or other options.\n'
-  replacement_key=""
-  printf 'Arvan access key (hidden, Enter to cancel): ' > /dev/tty
-  IFS= read -r -s replacement_key < /dev/tty || die "Could not read the replacement key."
-  printf '\n' > /dev/tty
-  [[ -n "$replacement_key" ]] || die "Access verification cancelled. Fix the key or its IAM policy, then run the certificate step again."
-  [[ "$replacement_key" != *$'\n'* && "$replacement_key" != *$'\r'* ]] || die "Arvan access key must be a single line."
-  ARVAN_ACCESS_KEY="$replacement_key"
-  export ARVAN_ACCESS_KEY
-  unset replacement_key
-done
+verify_arvan_access_with_replacement_key
 
 if [[ "$BACKGROUND" == "1" ]]; then
   log "Certificate output directory: $INSTALL_DIR"
