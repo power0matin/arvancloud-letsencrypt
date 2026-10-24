@@ -45,7 +45,7 @@ bash install.sh</code></pre>
   <li>دسترسی خروجی HTTPS به API آروان‌کلاد و سرویس صدور گواهی.</li>
 </ul>
 <p dir="rtl" align="right">برای اعتبارسنجی DNS-01 بازبودن پورت ۸۰ لازم نیست. پیش‌نیازهای سیستمی در صورت نیاز با <code dir="ltr">apt-get</code> نصب می‌شوند؛ اگر <code dir="ltr">acme.sh</code> نصب نباشد، نصب‌کننده آن را از upstream دریافت می‌کند.</p>
-<p dir="rtl" align="right">برای آزمایش اختیاری و واقعی API آروان و صدور گواهی از طریق ACME staging، بدون جایگزین‌کردن گواهی سرویس اصلی، به <a href="./tests/staging/README.md">راهنمای تست staging</a> مراجعه کنید. این تست از پوشهٔ موقت جداگانه استفاده می‌کند و گواهی را روی سرویس نصب نمی‌کند.</p>
+<p dir="rtl" align="right">برای آزمایش اختیاری و واقعی API آروان و صدور گواهی از طریق ACME staging، بدون جایگزین‌کردن گواهی سرویس اصلی، به <a href="./tests/staging/README.md">راهنمای تست staging</a> مراجعه کنید. این تست از پوشهٔ موقت جداگانه استفاده می‌کند و گواهی را روی سرویس نصب نمی‌کند. اجرای دستی GitHub Actions نیز پس از تنظیم دو Secret با نام‌های <code dir="ltr">ARVAN_STAGING_DOMAIN</code> (زیر‌دامنهٔ اختصاصی با پیشوند <code dir="ltr">acme-test.</code>) و <code dir="ltr">ARVAN_STAGING_API_KEY</code> در تنظیمات مخزن امکان‌پذیر است؛ جزئیات در همان راهنما آمده است.</p>
 
 <h2 dir="rtl" align="right">ساخت کلید API و تنظیم DNS</h2>
 <p dir="rtl" align="right">ساخت کلید به‌تنهایی کافی نیست؛ ماشین‌کاربر باید دسترسی مناسب به زون داشته باشد. پیوندهای رسمی:</p>

@@ -23,6 +23,19 @@ Enter a dedicated test subdomain when prompted, then enter an ArvanCloud API key
 
 The script copies the supplied plugin and the installed acme.sh script into an isolated temporary home and requests both the exact test hostname and its wildcard certificate through the staging CA. It does not modify the production acme.sh account/configuration directory.
 
+## Optional GitHub Actions run
+
+The repository also has a manual-only **ACME staging integration** workflow. To enable it, add these two repository secrets under **Settings → Secrets and variables → Actions**:
+
+- `ARVAN_STAGING_DOMAIN`: a dedicated test subdomain beginning with `acme-test.`, for example `acme-test.example.com`. Its parent DNS zone must be managed by the intended ArvanCloud account.
+- `ARVAN_STAGING_API_KEY`: a revocable, least-privilege API key with only the DNS permissions required for the test zone.
+
+Then open **Actions → ACME staging integration → Run workflow**, choose the `main` branch, and explicitly choose `RUN_STAGING`. The workflow rejects other branches, missing secrets, a domain without the `acme-test.` prefix, or an absent confirmation.
+
+The workflow checks out acme.sh at a pinned full commit SHA and runs the same isolated staging script. It does not install the staging certificate into a service path. The test API key is passed as an environment secret, never as a command-line argument, and the temporary acme.sh home is removed on exit. Do not use a production hostname or production API key.
+
+The workflow is prepared but has **not** been run against a live ArvanCloud test zone yet. That final check requires the repository secrets above to be configured by the repository owner.
+
 ## Interpreting the result
 
 A successful run confirms that the staging CA accepted the DNS-01 challenge and issued a staging certificate for the supplied names. A failure may indicate incorrect API permissions, a zone that is not visible to the key, DNS propagation delay, connectivity problems, or a staging CA issue; inspect the visible error before changing permissions.
