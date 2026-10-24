@@ -44,8 +44,13 @@ wait_for_log_text() {
     [[ -f "$path" ]] && grep -Fq "$text" "$path" && return 0
     sleep 0.1
   done
-  printf 'Timeout waiting for [%s] in [%s]. Files under %s:\\n' "$text" "$path" "$LOG_DIR" >&2
-  find "$LOG_DIR" -maxdepth 2 -type f -print -exec sh -c 'echo "--- $1"; cat "$1"' _ {} \\; >&2 || true
+  printf 'Timeout waiting for [%s] in [%s]. LOG_DIR=%s\\n' "$text" "$path" "$LOG_DIR" >&2
+  ls -laR "$LOG_DIR" >&2 || true
+  for file in "$LOG_DIR"/*; do
+    [[ -f "$file" ]] || continue
+    printf '%s\\n' "--- $file" >&2
+    cat "$file" >&2 || true
+  done
   return 1
 }
 
