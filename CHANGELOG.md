@@ -12,6 +12,7 @@
 - Exercise the replacement-key flow: retry after 401/403 or a zone-visibility error, cancel on empty input, reject multiline values, and stop without reprompting on network/API errors.
 - Cover foreground/background worker logging, persistence of issuance output, and failure behavior so an unsuccessful job is not logged as completed.
 - Fix worker status propagation: failed issuance/install now returns the failure code and records a failure marker instead of a false completion message.
+- Test temporary authorization-file cleanup through EXIT, HUP, INT, and TERM traps.
 - Retry transient DNS API GET transport failures and HTTP 429/5xx responses at most three times with bounded backoff; do not retry authorization failures or repeat DNS mutations.
 
 ## [1.1.4]
