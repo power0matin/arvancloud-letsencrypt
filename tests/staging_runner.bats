@@ -47,7 +47,7 @@ setup() {
   read_staging_api_key > "$output_file"
 
   [ "$Arvan_Token" = "mock-staging-secret" ]
-  [[ "$(declare -p Arvan_Token)" == declare\\ -x* ]]
+  [[ "$(declare -p Arvan_Token)" == *"-x Arvan_Token="* ]]
   [ -z "${ARVAN_STAGING_API_KEY+x}" ]
   ! grep -Fq "mock-staging-secret" "$output_file"
 }
