@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Record GitHub's recognized `GPL-3.0` repository license metadata in the roadmap status.
 - Add Debian 12 (Bookworm) and Debian 13 (Trixie) container checks for shell syntax, the full mocked Bats suite, and ShellCheck.
 - Keep Ubuntu 22.04/24.04 for actionlint, plugin parity, release-workflow guardrails, and shell/Bats checks.
 - Update roadmap and bilingual documentation to report 52 mocked Bats cases across eight files; the remaining v1.2.0 gate is a manual staging issuance using dedicated test credentials.
