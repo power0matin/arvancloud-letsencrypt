@@ -5,9 +5,9 @@
 - Record GitHub's recognized `GPL-3.0` repository license metadata in the roadmap status.
 - Add Debian 12 (Bookworm) and Debian 13 (Trixie) container checks for shell syntax, the full mocked Bats suite, and ShellCheck.
 - Keep Ubuntu 22.04/24.04 for actionlint, plugin parity, release-workflow guardrails, and shell/Bats checks.
-- Update roadmap and bilingual documentation to report 52 mocked Bats cases across eight files; the remaining v1.2.0 gate is a manual staging issuance using dedicated test credentials.
+- Update roadmap and bilingual documentation to report 57 mocked Bats cases across nine files; the remaining v1.2.0 gate is one live staging issuance after owner-managed repository secrets are configured.
 
-- Add a manual-only GitHub Actions ACME staging workflow guarded by explicit confirmation and dedicated repository secrets, using a pinned acme.sh commit and the isolated staging runner.
+- Add a manual-only GitHub Actions ACME staging workflow guarded by explicit confirmation and dedicated repository secrets, using a pinned acme.sh commit and the isolated staging runner. The workflow has passed mocked/static CI checks but has not yet been run against a live ArvanCloud test zone.
 
 - Resolve companion scripts from the same immutable release tag and verify downloaded components against that release's SHA-256 manifest before execution.
 
